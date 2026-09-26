@@ -49,6 +49,5 @@ Edit `tools/index.template.html` or the cue list in `tools/build_index.py`, not
   [lavenderdotpet/CC0-Public-Domain-Sounds](https://github.com/lavenderdotpet/CC0-Public-Domain-Sounds).
 - **Riser, sub boom, hit, reverse swell, keyboard typing:** synthesized for this video (typing is
   sequenced from the Kenney clicks).
-- **Fonts:** Geist and Geist Mono (SIL OFL, `assets/fonts/GEIST-LICENSE.txt`),
-  Instrument Serif (SIL OFL, Google Fonts).
+- **Fonts:** Archivo and IBM Plex Mono (SIL OFL, licenses in `assets/fonts/`).
 - **GSAP** 3.14 (bundled in `assets/vendor`).

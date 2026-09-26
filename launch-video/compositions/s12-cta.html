@@ -26,7 +26,6 @@
         }
         #s12-head .serif-i {
           color: var(--accent-soft);
-          font-size: 172px;
         }
         #s12-head .line {
           display: block;
@@ -39,10 +38,9 @@
           margin: 0 auto;
           width: fit-content;
           top: 390px;
-          border-radius: 20px;
-          background: linear-gradient(180deg, #181715 0%, #121110 100%);
-          border: 1px solid var(--line-2);
-          box-shadow: 0 50px 120px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.6);
+          border-radius: 12px;
+          background: #121212;
+          color: #f0f0ec;
           padding: 34px 44px;
           font-family: var(--mono);
           font-size: 36px;
@@ -50,11 +48,11 @@
           white-space: nowrap;
         }
         #s12-term .c {
-          color: var(--muted);
+          color: #8c8c86;
           margin-right: 18px;
         }
         #s12-term .slash {
-          color: var(--accent-soft);
+          color: #93a0ff;
         }
         #s12-lock {
           position: absolute;
@@ -69,12 +67,11 @@
         #s12-mark {
           width: 96px;
           height: 96px;
-          filter: drop-shadow(0 12px 40px rgba(226, 121, 74, 0.5));
-        }
+                  }
         #s12-word {
-          font-size: 92px;
-          font-weight: 680;
-          letter-spacing: -0.055em;
+          font-size: 96px;
+          font-weight: 800;
+          letter-spacing: -0.035em;
           line-height: 1;
           padding-bottom: 0.1em;
         }
@@ -94,10 +91,8 @@
         }
       </style>
 
-      <div id="s12" data-composition-id="s12-cta" data-width="1920" data-height="1080" data-duration="8.55">
+      <div id="s12" class="light" data-composition-id="s12-cta" data-width="1920" data-height="1080" data-duration="8.55">
         <div class="bg-fill"></div>
-        <div class="bg-glow"></div>
-        <div class="bg-grid"></div>
 
         <div id="s12-headwrap">
           <div class="display" id="s12-head">
@@ -113,19 +108,11 @@
 
         <div id="s12-lock">
           <svg id="s12-mark" viewBox="0 0 160 160">
-            <defs>
-              <linearGradient id="s12-g" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#f09a6c" />
-                <stop offset="0.55" stop-color="#e2794a" />
-                <stop offset="1" stop-color="#b9552c" />
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="160" height="160" rx="40" fill="url(#s12-g)" />
-            <rect x="1" y="1" width="158" height="158" rx="39" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" />
-            <path d="M52 48 q-12 0 -12 12 v10 q0 10 -9 10 q9 0 9 10 v10 q0 12 12 12" fill="none" stroke="#1a0f0a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M108 48 q12 0 12 12 v10 q0 10 9 10 q-9 0 -9 10 v10 q0 12 -12 12" fill="none" stroke="#1a0f0a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-            <circle cx="80" cy="70" r="13" fill="#1a0f0a" />
-            <path d="M73 76 L87 76 L91 106 L69 106 Z" fill="#1a0f0a" />
+            <rect x="0" y="0" width="160" height="160" rx="28" fill="#2b44ff" />
+            <path d="M52 48 q-12 0 -12 12 v10 q0 10 -9 10 q9 0 9 10 v10 q0 12 12 12" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M108 48 q12 0 12 12 v10 q0 10 9 10 q-9 0 -9 10 v10 q0 12 -12 12" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="80" cy="70" r="13" fill="#ffffff" />
+            <path d="M73 76 L87 76 L91 106 L69 106 Z" fill="#ffffff" />
           </svg>
           <div class="display" id="s12-word">human-input</div>
         </div>

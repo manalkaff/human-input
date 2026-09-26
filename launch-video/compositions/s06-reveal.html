@@ -14,8 +14,7 @@
         #s06-flash {
           position: absolute;
           inset: 0;
-          background: radial-gradient(circle at 50% 50%, rgba(255, 214, 190, 1) 0%, rgba(226, 121, 74, 0.85) 18%, rgba(226, 121, 74, 0) 60%);
-          opacity: 0;
+          background: var(--accent);
         }
         #s06-ring {
           position: absolute;
@@ -24,7 +23,7 @@
           width: 600px;
           height: 600px;
           border-radius: 50%;
-          border: 3px solid rgba(245, 178, 140, 0.9);
+          border: 3px solid var(--accent);
           opacity: 0;
         }
         #s06-stage {
@@ -44,12 +43,11 @@
           width: 180px;
           height: 180px;
           flex: none;
-          filter: drop-shadow(0 20px 60px rgba(226, 121, 74, 0.55));
-        }
+                  }
         #s06-word {
-          font-size: 176px;
-          font-weight: 680;
-          letter-spacing: -0.055em;
+          font-size: 184px;
+          font-weight: 800;
+          letter-spacing: -0.035em;
           overflow: hidden;
           padding: 0 0.04em 0.12em 0;
           line-height: 1;
@@ -60,7 +58,7 @@
         }
         #s06-eyebrow {
           margin-top: 36px;
-          color: var(--accent-soft);
+          color: var(--muted);
         }
         #s06-tag {
           margin-top: 64px;
@@ -68,40 +66,29 @@
           gap: 34px;
           font-family: var(--sans);
           font-size: 66px;
-          font-weight: 560;
-          letter-spacing: -0.035em;
+          font-weight: 700;
+          font-stretch: 88%;
+          letter-spacing: -0.02em;
           white-space: nowrap;
         }
         #s06-tag .serif-i {
-          font-size: 80px;
           color: var(--accent-soft);
-          line-height: 0.8;
         }
       </style>
 
-      <div id="s06" data-composition-id="s06-reveal" data-width="1920" data-height="1080" data-duration="4.53">
+      <div id="s06" class="light" data-composition-id="s06-reveal" data-width="1920" data-height="1080" data-duration="4.53">
         <div class="bg-fill"></div>
-        <div class="bg-glow" id="s06-glow"></div>
-        <div class="bg-grid"></div>
         <div id="s06-flash"></div>
         <div id="s06-ring"></div>
 
         <div id="s06-stage">
           <div id="s06-lockup">
             <svg id="s06-mark" viewBox="0 0 160 160">
-              <defs>
-                <linearGradient id="s06-g" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#f09a6c" />
-                  <stop offset="0.55" stop-color="#e2794a" />
-                  <stop offset="1" stop-color="#b9552c" />
-                </linearGradient>
-              </defs>
-              <rect x="0" y="0" width="160" height="160" rx="40" fill="url(#s06-g)" />
-              <rect x="1" y="1" width="158" height="158" rx="39" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" />
-              <path d="M52 48 q-12 0 -12 12 v10 q0 10 -9 10 q9 0 9 10 v10 q0 12 12 12" fill="none" stroke="#1a0f0a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M108 48 q12 0 12 12 v10 q0 10 9 10 q-9 0 -9 10 v10 q0 12 -12 12" fill="none" stroke="#1a0f0a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-              <circle cx="80" cy="70" r="13" fill="#1a0f0a" />
-              <path d="M73 76 L87 76 L91 106 L69 106 Z" fill="#1a0f0a" />
+              <rect x="0" y="0" width="160" height="160" rx="28" fill="#2b44ff" />
+              <path d="M52 48 q-12 0 -12 12 v10 q0 10 -9 10 q9 0 9 10 v10 q0 12 12 12" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M108 48 q12 0 12 12 v10 q0 10 9 10 q-9 0 -9 10 v10 q0 12 -12 12" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="80" cy="70" r="13" fill="#ffffff" />
+              <path d="M73 76 L87 76 L91 106 L69 106 Z" fill="#ffffff" />
             </svg>
             <div class="display" id="s06-word">human-input</div>
           </div>
@@ -119,10 +106,9 @@
           const tl = gsap.timeline({ paused: true });
           const chars = HF.splitChars(document.getElementById("s06-word"));
           // impact
-          tl.fromTo("#s06-flash", { opacity: 1, scale: 0.6 }, { opacity: 0, scale: 1.6, duration: 0.7, ease: "power2.out" }, 0);
+          tl.fromTo("#s06-flash", { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.55, ease: "expo.inOut" }, 0.04);
           tl.fromTo("#s06-ring", { opacity: 1, scale: 0.05 }, { opacity: 0, scale: 2.6, duration: 0.9, ease: "expo.out" }, 0);
-          tl.fromTo("#s06-glow", { opacity: 0 }, { opacity: 1, duration: 0.8 }, 0);
-          // mark lands centered, then the lockup opens
+                // mark lands centered, then the lockup opens
           const lockupShift = 545;
           tl.fromTo("#s06-mark", { scale: 0, rotation: -25, x: lockupShift }, { scale: 1, rotation: 0, x: lockupShift, duration: 0.55, ease: "back.out(1.8)" }, 0.02);
           tl.to("#s06-mark", { x: 0, duration: 0.6, ease: "expo.inOut" }, 0.58);

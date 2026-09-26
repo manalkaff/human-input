@@ -17,7 +17,7 @@
           right: 0;
           top: 72px;
           text-align: center;
-          color: var(--accent-soft);
+          color: var(--muted);
         }
         #s10 .row {
           position: absolute;
@@ -30,48 +30,51 @@
           gap: 18px;
           margin-bottom: 18px;
           font-family: var(--sans);
-          font-size: 40px;
-          font-weight: 620;
-          letter-spacing: -0.025em;
+          font-size: 44px;
+          font-weight: 800;
+          font-stretch: 86%;
+          letter-spacing: -0.015em;
+          word-spacing: 0.06em;
         }
         #s10 .hook {
           font-family: var(--mono);
           font-size: 21px;
           font-weight: 500;
-          color: var(--accent-soft);
-          border: 1px solid rgba(226, 121, 74, 0.45);
-          background: rgba(226, 121, 74, 0.1);
-          border-radius: 8px;
+          color: #ffffff;
+          border: none;
+          background: var(--accent);
+          border-radius: 4px;
           padding: 4px 12px;
           letter-spacing: 0.02em;
         }
         #s10 .panel {
           position: relative;
-          border-radius: 18px;
-          background: linear-gradient(180deg, #171614 0%, #121110 100%);
-          border: 1px solid var(--line-2);
+          border-radius: 10px;
+          background: #121212;
+          color: #f0f0ec;
+          border: none;
           padding: 26px 34px;
           font-family: var(--mono);
           font-size: 34px;
           line-height: 1.6;
           white-space: nowrap;
           overflow: hidden;
-          box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
-        }
+                  }
         #s10 .cap {
           margin-top: 16px;
           font-family: var(--sans);
-          font-size: 27px;
+          font-size: 28px;
+          font-weight: 500;
           color: var(--muted);
         }
         #s10 .dollar {
-          color: var(--muted);
+          color: #8c8c86;
         }
         #s10-swap {
-          color: var(--accent-soft);
+          color: #93a0ff;
         }
         #s10-val {
-          color: var(--danger-soft);
+          color: #ff5a3c;
         }
         #s10-scan {
           position: absolute;
@@ -79,15 +82,14 @@
           bottom: 0;
           left: 0;
           width: 160px;
-          background: linear-gradient(90deg, transparent, rgba(226, 121, 74, 0.35) 70%, rgba(245, 178, 140, 0.95) 97%, transparent);
+          background: rgba(43, 68, 255, 0.35);
+          border-right: 3px solid #93a0ff;
           opacity: 0;
         }
       </style>
 
-      <div id="s10" data-composition-id="s10-hooks" data-width="1920" data-height="1080" data-duration="6.8">
+      <div id="s10" class="light" data-composition-id="s10-hooks" data-width="1920" data-height="1080" data-duration="6.8">
         <div class="bg-fill"></div>
-        <div class="bg-glow"></div>
-        <div class="bg-grid"></div>
         <div class="eyebrow" id="s10-eyebrow">Under the hood · two hooks</div>
 
         <div class="row" id="s10-rowA" style="top: 150px">
@@ -124,7 +126,7 @@
           tl.fromTo("#s10-scan", { opacity: 1, x: -170 }, { opacity: 1, x: 1560, duration: 0.8, ease: "power1.inOut" }, 4.1);
           tl.to("#s10-scan", { opacity: 0, duration: 0.1 }, 4.9);
           HF.scramble(tl, document.getElementById("s10-val"), "{{secret:STRIPE_SECRET_KEY}}", 4.3, 0.45, 23);
-          tl.to("#s10-val", { color: "#f5b28c", duration: 0.2 }, 4.7);
+          tl.to("#s10-val", { color: "#93a0ff", duration: 0.2 }, 4.7);
           tl.fromTo("#s10-capB", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 5.0);
           // exit
           tl.to(["#s10-rowA", "#s10-rowB", "#s10-eyebrow"], { opacity: 0, y: -40, filter: "blur(10px)", duration: 0.35, ease: "power3.in", stagger: 0.05 }, 6.4);

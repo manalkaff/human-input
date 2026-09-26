@@ -14,10 +14,10 @@
         #s04 .win {
           position: absolute;
           width: 660px;
-          border-radius: 18px;
-          background: linear-gradient(180deg, #16181d 0%, #101216 100%);
+          border-radius: 12px;
+          background: #141414;
           border: 1px solid var(--line-2);
-          box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
           overflow: hidden;
           font-family: var(--mono);
           color: var(--text);
@@ -29,15 +29,15 @@
           gap: 8px;
           padding: 0 16px;
           border-bottom: 1px solid var(--line);
-          font-family: var(--sans);
-          font-size: 16px;
+          font-family: var(--mono);
+          font-size: 15px;
           color: var(--muted);
         }
         #s04 .wbar b {
           width: 11px;
           height: 11px;
           border-radius: 50%;
-          background: #3a3b40;
+          background: #333330;
         }
         #s04 .wbar span {
           flex: 1;
@@ -55,7 +55,7 @@
           padding-left: 12px;
           font-family: var(--mono);
           font-size: 15px;
-          color: #b9bcc6;
+          color: #b5b5ae;
         }
         #s04 .wbody {
           padding: 22px 26px;
@@ -77,13 +77,13 @@
           padding: 4px 12px;
           border-radius: 7px;
           border: 1px solid var(--line-2);
-          color: #c9ccd6;
+          color: #cfcfc8;
           margin-left: 12px;
         }
         #s04-dim {
           position: absolute;
           inset: 0;
-          background: rgba(6, 7, 9, 0.78);
+          background: rgba(11, 11, 11, 0.8);
           opacity: 0;
         }
         #s04 .stamp {
@@ -104,9 +104,7 @@
 
       <div id="s04" data-composition-id="s04-detour" data-width="1920" data-height="1080" data-duration="3.75">
         <div class="bg-fill" style="background: var(--ink-cold)"></div>
-        <div class="bg-glow cold"></div>
-        <div class="bg-grid"></div>
-
+        
         <div class="win" data-layout-allow-overlap id="s04-w1" style="left: 120px; top: 170px">
           <div class="wbar"><b></b><b></b><b></b><span>zsh — ~/shop-app</span></div>
           <div class="wbody"><span class="muted">$</span> vim .env.local<br />STRIPE_SECRET_KEY=<span class="cursor" style="height: 26px; width: 12px"></span></div>

@@ -39,9 +39,8 @@
           right: -8px;
           bottom: -6px;
           border: 3px solid var(--danger);
-          border-radius: 12px;
-          background: rgba(255, 91, 79, 0.1);
-          box-shadow: 0 0 40px rgba(255, 91, 79, 0.35);
+          border-radius: 6px;
+          background: rgba(255, 59, 31, 0.12);
         }
         #s02-leaks {
           position: absolute;
@@ -58,14 +57,14 @@
           align-items: center;
           gap: 16px;
           padding: 18px 26px;
-          border-radius: 16px;
-          background: rgba(24, 10, 10, 0.92);
-          border: 1px solid rgba(255, 91, 79, 0.55);
-          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+          border-radius: 8px;
+          background: #141414;
+          border: 1px solid var(--danger);
           font-family: var(--sans);
           font-size: 34px;
-          font-weight: 560;
-          letter-spacing: -0.02em;
+          font-weight: 600;
+          font-stretch: 90%;
+          letter-spacing: -0.01em;
           color: var(--text);
           white-space: nowrap;
         }
@@ -81,24 +80,21 @@
           height: 14px;
           border-radius: 50%;
           background: var(--danger);
-          box-shadow: 0 0 18px var(--danger);
         }
         #s02-flash {
           position: absolute;
           inset: 0;
-          background: radial-gradient(ellipse at 50% 55%, rgba(255, 91, 79, 0.28), transparent 65%);
+          background: rgba(255, 59, 31, 0.1);
           opacity: 0;
         }
       </style>
 
       <div id="s02" data-composition-id="s02-paste" data-width="1920" data-height="1080" data-duration="3.8">
         <div class="bg-fill" style="background: var(--ink-cold)"></div>
-        <div class="bg-glow cold"></div>
-        <div class="bg-grid"></div>
-        <div id="s02-flash"></div>
+                <div id="s02-flash"></div>
 
         <div class="cam" id="s02-cam">
-          <div class="term cold" id="s02-term">
+          <div class="term" id="s02-term">
             <div class="term-bar">
               <div class="term-dot"></div>
               <div class="term-dot"></div>
@@ -136,7 +132,7 @@
           tl.set("#s02-cam", { scale: 1.16, x: 150, y: -40 }, 0);
           tl.fromTo("#s02-userline", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.14, ease: "power2.out" }, 0.22);
           // Enter: key turns hot
-          tl.to("#s02-key", { color: "#ff9b92", duration: 0.2 }, 0.62);
+          tl.to("#s02-key", { color: "#ff5a3c", duration: 0.2 }, 0.62);
           tl.fromTo("#s02-box", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.4, ease: "power2.inOut" }, 0.7);
           // punch in on the key
           tl.to("#s02-cam", { scale: 1.5, x: 290, y: -120, duration: 0.55, ease: "expo.out" }, 0.62);

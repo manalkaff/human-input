@@ -22,7 +22,6 @@
         }
         #s09-head .serif-i {
           color: var(--accent-soft);
-          font-size: 100px;
         }
         #s09-tokwrap {
           position: absolute;
@@ -35,8 +34,7 @@
         #s09-token {
           font-size: 36px;
           padding: 10px 24px;
-          border-radius: 14px;
-          box-shadow: 0 0 50px rgba(226, 121, 74, 0.3);
+          border-radius: 8px;
         }
         #s09-wires {
           position: absolute;
@@ -48,7 +46,7 @@
         }
         #s09-wires path {
           fill: none;
-          stroke: rgba(226, 121, 74, 0.55);
+          stroke: var(--accent);
           stroke-width: 2;
         }
         #s09 .pulse {
@@ -58,8 +56,7 @@
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: var(--accent-soft);
-          box-shadow: 0 0 20px 6px rgba(226, 121, 74, 0.8);
+          background: var(--accent);
           opacity: 0;
         }
         #s09 .card {
@@ -67,10 +64,9 @@
           top: 470px;
           width: 400px;
           height: 450px;
-          border-radius: 22px;
-          background: linear-gradient(180deg, #191816 0%, #121110 100%);
+          border-radius: 12px;
+          background: #ffffff;
           border: 1px solid var(--line-2);
-          box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5);
           padding: 26px 24px;
           display: flex;
           flex-direction: column;
@@ -83,9 +79,11 @@
         }
         #s09 .card .ttl {
           font-family: var(--sans);
-          font-size: 38px;
-          font-weight: 630;
-          letter-spacing: -0.03em;
+          font-size: 40px;
+          font-weight: 800;
+          font-stretch: 86%;
+          letter-spacing: -0.015em;
+          word-spacing: 0.06em;
           margin: 6px 0 20px;
           color: var(--text);
         }
@@ -93,17 +91,17 @@
           font-family: var(--mono);
           font-size: 18.5px;
           line-height: 1.6;
-          color: #d9d4ca;
-          background: rgba(0, 0, 0, 0.35);
-          border: 1px solid var(--line);
-          border-radius: 12px;
+          color: #e8e8e3;
+          background: #121212;
+          border: none;
+          border-radius: 6px;
           padding: 16px 12px;
           margin: 0;
           white-space: pre;
           flex: 1;
         }
         #s09 .card .tk {
-          color: var(--accent-soft);
+          color: #93a0ff;
         }
         #s09 .card .foot {
           margin-top: 16px;
@@ -113,10 +111,8 @@
         }
       </style>
 
-      <div id="s09" data-composition-id="s09-destinations" data-width="1920" data-height="1080" data-duration="6.8">
+      <div id="s09" class="light" data-composition-id="s09-destinations" data-width="1920" data-height="1080" data-duration="6.8">
         <div class="bg-fill"></div>
-        <div class="bg-glow"></div>
-        <div class="bg-grid"></div>
 
         <div class="display" id="s09-head">Claude decides <span class="serif-i">where it goes.</span></div>
 
@@ -189,8 +185,8 @@
             tl.to(id, { keyframes: [{ y: 400, duration: 0.1 }, { x: xs[i], duration: 0.22 }, { y: 470, duration: 0.1 }], ease: "none" }, t);
             tl.to(id, { opacity: 0, duration: 0.1 }, t + 0.42);
             const card = "#s09-c" + (i + 1);
-            tl.to(card, { borderColor: "rgba(226,121,74,0.85)", boxShadow: "0 0 60px rgba(226,121,74,0.35)", y: -10, duration: 0.18, ease: "power2.out" }, t + 0.4);
-            tl.to(card, { borderColor: "rgba(255,255,255,0.14)", boxShadow: "0 40px 90px rgba(0,0,0,0.5)", y: 0, duration: 0.5, ease: "power2.out" }, t + 0.62);
+            tl.to(card, { borderColor: "#2b44ff", boxShadow: "0 0 0 2px #2b44ff", y: -10, duration: 0.18, ease: "power2.out" }, t + 0.4);
+            tl.to(card, { borderColor: "rgba(11,11,11,0.22)", boxShadow: "0 0 0 0px #2b44ff", y: 0, duration: 0.5, ease: "power2.out" }, t + 0.62);
           });
           // exit
           tl.to(["#s09-c1", "#s09-c2", "#s09-c3", "#s09-c4"], { y: 160, opacity: 0, duration: 0.35, ease: "power3.in", stagger: 0.04 }, 6.3);
