@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // human-input: an MCP server that asks the human for values (API keys, tokens,
-// IDs) through MCP elicitation, writes them straight to disk, and tells the
-// model only *that* they were saved — never the secret itself.
+// IDs) through MCP elicitation, keeps them in a store outside the model's
+// context, and tells the model only *that* they were saved plus a
+// {{secret:NAME}} placeholder. The plugin's hooks (../hooks/secrets.mjs) swap
+// placeholders for real values when a tool runs and redact values from tool
+// output.
 //
 // Zero dependencies on purpose: plugins are installed by cloning, with no
 // `npm install` step, so this speaks newline-delimited JSON-RPC over stdio
@@ -12,10 +15,11 @@ import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 import { fileURLToPath } from "node:url";
+import * as store from "./store.mjs";
+import { NAME_RE, projectDir } from "./store.mjs";
 
-const SERVER_INFO = { name: "human-input", version: "0.1.0" };
+const SERVER_INFO = { name: "human-input", version: "0.2.0" };
 const SUPPORTED_PROTOCOLS = ["2025-11-25", "2025-06-18", "2025-03-26"];
-const KEY_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 // ── JSON-RPC plumbing ────────────────────────────────────────────────────
 
@@ -42,13 +46,12 @@ function log(...args) {
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-function projectDir() {
-  return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+function resolveTarget(file) {
+  return path.resolve(projectDir(), file.trim());
 }
 
-function resolveTarget(file) {
-  const target = file && file.trim() ? file.trim() : ".env";
-  return path.resolve(projectDir(), target);
+function relToProject(file) {
+  return path.relative(projectDir(), file) || file;
 }
 
 function isRemote() {
@@ -130,16 +133,6 @@ export function upsertEnv(file, entries) {
   } catch {}
 }
 
-export function existingKeys(file) {
-  if (!fs.existsSync(file)) return new Set();
-  const keys = new Set();
-  for (const l of fs.readFileSync(file, "utf8").split(/\r?\n/)) {
-    const m = l.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/);
-    if (m) keys.add(m[1]);
-  }
-  return keys;
-}
-
 // Make sure a file we just put secrets in can't be committed by accident.
 // Returns a short note for the tool result, or "".
 function ensureGitignored(file) {
@@ -187,52 +180,64 @@ function supportsFormElicitation() {
   return Object.keys(e).length === 0 || Boolean(e.form);
 }
 
-function noElicitationFallback(keys, file) {
-  const rel = path.relative(projectDir(), file) || file;
+function noElicitationFallback(names) {
   return text(
     [
       "This Claude Code client did not advertise MCP elicitation, so no input form could be shown.",
       "Do NOT ask the user to paste the value into the chat.",
-      `Instead, tell the user to add ${keys.join(", ")} to ${rel} themselves (or, in a Claude Code on the web`,
-      "session, as an environment secret in the environment settings) and let you know when it's done.",
+      `Instead, tell the user to put ${names.join(", ")} where it's needed themselves (e.g. an env file, or in a Claude Code`,
+      "on the web session, an environment secret in the environment settings) and let you know when it's done.",
     ].join(" "),
     true,
   );
 }
 
+const USAGE = [
+  "How to use stored values (you never see secret ones):",
+  "- Bash: put {{secret:NAME}} in the command, unquoted or inside double quotes, e.g. `gh secret set NAME --body {{secret:NAME}}`. It becomes a $(cat …) that reads the value when the command runs.",
+  "- Any other MCP tool: put {{secret:NAME}} in the argument; the real value is swapped in just before the call.",
+  "- Files: pass save_to to request_input, or write it with Bash, e.g. `printf 'token = \"%s\"\\n' {{secret:NAME}} >> config.toml`.",
+  "Secret values that show up in tool output are replaced with their placeholder.",
+].join("\n");
+
 // ── Tools ────────────────────────────────────────────────────────────────
+
+const WIZARD_PROPS = {
+  title: { type: "string", description: "Short heading, e.g. 'Stripe test API keys'." },
+  why: { type: "string", description: "One sentence on what this is needed for." },
+  url: { type: "string", description: "Page where the human does this / finds the value(s), e.g. the provider's API key dashboard." },
+  steps: {
+    type: "array",
+    items: { type: "string" },
+    description: "Exact steps a stranger could follow on that page, e.g. 'Click Reveal test key, then copy it'. Don't invent UI you are unsure of.",
+  },
+  open_browser: { type: "boolean", default: true, description: "Open `url` in the user's browser (local sessions only)." },
+};
 
 const TOOLS = [
   {
     name: "request_input",
     title: "Ask the human for secrets / values",
     description: [
-      "Show the human an input form in this session and save their answers directly to an env file.",
-      "Use this whenever you need an API key, token, password, connection string or any value only the human has.",
+      "Show the human an input form in this session. Use this whenever you need an API key, token, password, connection string or any value only the human has.",
       "NEVER ask the user to paste secrets into the chat — use this tool instead.",
-      "Secret values are written to disk and are NEVER returned to you; you only learn that they were saved.",
-      "Non-secret fields (secret: false) are returned so you can use them.",
-      "Wizard-style: pass the `url` where the value can be found and concrete `steps` (what to click/copy); the URL is opened in the user's browser when running locally and shown as a link otherwise.",
-      "Group values that come from the same page into one call. To use saved values in commands, load them without printing, e.g. `set -a; . ./.env; set +a; <command>` — never cat/echo/grep the file.",
+      "Values are kept in a private store outside the repo and outside your context. Secret values are NEVER returned to you: you get a {{secret:NAME}} placeholder that the plugin swaps for the real value when you use it in a Bash command or any MCP tool argument (e.g. a deploy platform's set-env tool, or `modal secret create`).",
+      "You decide where the value goes: pass save_to to also write it into a dotenv file the app reads (e.g. .env.local); otherwise use the placeholder with whatever CLI or MCP tool needs it.",
+      "Non-secret fields (secret: false) are also returned in plain text.",
+      "Wizard-style: pass the `url` where the value can be found and concrete `steps`; the URL is opened in the user's browser when running locally and shown as a link otherwise.",
+      "Group values that come from the same page into one call.",
     ].join(" "),
     inputSchema: {
       type: "object",
       properties: {
-        title: { type: "string", description: "Short heading, e.g. 'Stripe test API keys'." },
-        why: { type: "string", description: "One sentence on what the values are needed for." },
-        url: { type: "string", description: "Page where the human gets the value(s), e.g. the provider's API key dashboard." },
-        steps: {
-          type: "array",
-          items: { type: "string" },
-          description: "Exact steps a stranger could follow on that page, e.g. 'Click Reveal test key, then copy it'. Don't invent UI you are unsure of.",
-        },
+        ...WIZARD_PROPS,
         fields: {
           type: "array",
           minItems: 1,
           items: {
             type: "object",
             properties: {
-              key: { type: "string", description: "Env var name to write, e.g. STRIPE_SECRET_KEY." },
+              key: { type: "string", description: "Name, e.g. STRIPE_SECRET_KEY. Used as the placeholder name and, with save_to, the env var name." },
               label: { type: "string", description: "Field label shown to the human." },
               description: { type: "string", description: "Hint, e.g. 'starts with sk_test_'." },
               secret: { type: "boolean", default: true, description: "true (default): never returned to you. false: value is returned in the tool result." },
@@ -241,8 +246,10 @@ const TOOLS = [
             required: ["key"],
           },
         },
-        env_file: { type: "string", default: ".env", description: "File to write, relative to the project root. Defaults to .env." },
-        open_browser: { type: "boolean", default: true, description: "Open `url` in the user's browser (local sessions only)." },
+        save_to: {
+          type: "string",
+          description: "Optional dotenv file to also write KEY=value lines into, relative to the project root (e.g. '.env', 'apps/web/.env.local'). It's created with mode 600 and git-ignored. Omit when the value is headed for a CLI or MCP tool instead.",
+        },
       },
       required: ["fields"],
     },
@@ -256,18 +263,26 @@ const TOOLS = [
       "Wizard-style: pass the `url` to open and concrete `steps`. Returns whether they completed it, plus an optional note they typed.",
       "Do not use this to collect secrets — use request_input for that.",
     ].join(" "),
+    inputSchema: { type: "object", properties: WIZARD_PROPS, required: ["title"] },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: "list_secrets",
+    title: "List stored values",
+    description: "List the names of values stored for this project (never the secret values themselves), with their {{secret:NAME}} placeholders and the files they were saved to. Check this before asking the human for something they may already have given.",
+    inputSchema: { type: "object", properties: {} },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: "forget_secrets",
+    title: "Delete stored values",
+    description: "Delete values from this project's store (e.g. after the human rotated a key, before asking again). Does not touch files they were saved to.",
     inputSchema: {
       type: "object",
-      properties: {
-        title: { type: "string" },
-        why: { type: "string" },
-        url: { type: "string" },
-        steps: { type: "array", items: { type: "string" } },
-        open_browser: { type: "boolean", default: true },
-      },
-      required: ["title"],
+      properties: { names: { type: "array", items: { type: "string" }, minItems: 1 } },
+      required: ["names"],
     },
-    annotations: { readOnlyHint: true, openWorldHint: false },
+    annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   },
 ];
 
@@ -276,19 +291,20 @@ async function requestInput(args) {
   if (!fields.length) return text("`fields` must contain at least one field.", true);
   const seen = new Set();
   for (const f of fields) {
-    if (!f || typeof f.key !== "string" || !KEY_RE.test(f.key)) {
-      return text(`Invalid field key ${JSON.stringify(f?.key)}: use an env var name like API_KEY.`, true);
+    if (!f || typeof f.key !== "string" || !NAME_RE.test(f.key)) {
+      return text(`Invalid field key ${JSON.stringify(f?.key)}: use a name like API_KEY.`, true);
     }
     if (seen.has(f.key)) return text(`Duplicate field key ${f.key}.`, true);
     seen.add(f.key);
   }
 
-  const file = resolveTarget(args.env_file);
-  const rel = path.relative(projectDir(), file) || file;
-  const keys = fields.map((f) => f.key);
-  if (!supportsFormElicitation()) return noElicitationFallback(keys, file);
+  // `env_file` was the 0.1 name for `save_to`.
+  const saveToArg = typeof args.save_to === "string" && args.save_to.trim() ? args.save_to : args.env_file;
+  const file = typeof saveToArg === "string" && saveToArg.trim() ? resolveTarget(saveToArg) : undefined;
+  const rel = file && relToProject(file);
+  const names = fields.map((f) => f.key);
+  if (!supportsFormElicitation()) return noElicitationFallback(names);
 
-  const already = existingKeys(file);
   const opened = args.url && args.open_browser !== false ? openUrl(args.url) : false;
 
   const properties = {};
@@ -297,19 +313,16 @@ async function requestInput(args) {
     const secret = f.secret !== false;
     const hints = [];
     if (f.description) hints.push(f.description);
-    if (secret) hints.push("secret: saved to disk, never shown to Claude");
-    if (already.has(f.key)) hints.push(`already set in ${rel}; leave empty to keep it`);
-    properties[f.key] = {
-      type: "string",
-      title: f.label || f.key,
-      description: hints.join(" · "),
-    };
-    if (f.required !== false && !already.has(f.key)) required.push(f.key);
+    if (secret) hints.push("secret: never shown to Claude");
+    const already = store.has(f.key);
+    if (already) hints.push("already saved; leave empty to keep it");
+    properties[f.key] = { type: "string", title: f.label || f.key, description: hints.join(" · ") };
+    if (f.required !== false && !already) required.push(f.key);
   }
 
   const note = [
     opened ? "(Opened in your browser.)" : "",
-    `Values are written to ${rel}. Secret values are not sent to Claude.`,
+    `Saved privately${rel ? ` and written to ${rel}` : ""}. Secret values are not sent to Claude.`,
   ]
     .filter(Boolean)
     .join(" ");
@@ -323,7 +336,7 @@ async function requestInput(args) {
     });
   } catch (err) {
     log("elicitation failed:", err?.message ?? String(err));
-    return noElicitationFallback(keys, file);
+    return noElicitationFallback(names);
   }
 
   if (res?.action !== "accept") {
@@ -340,25 +353,60 @@ async function requestInput(args) {
     const secret = f.secret !== false;
     let v = content[f.key];
     v = typeof v === "string" ? v.trim() : v == null ? "" : String(v);
+    const ph = `{{secret:${f.key}}}`;
     if (!v) {
-      if (already.has(f.key)) report.push(`${f.key}: kept existing value`);
-      else if (f.required !== false) missing.push(f.key);
+      if (store.has(f.key)) {
+        if (file) toWrite.push([f.key, store.get(f.key)]);
+        report.push(`${f.key}: kept existing value → ${ph}`);
+      } else if (f.required !== false) missing.push(f.key);
       else report.push(`${f.key}: left empty (optional)`);
       continue;
     }
-    toWrite.push([f.key, v]);
-    report.push(secret ? `${f.key}: saved (${v.length} chars, hidden)` : `${f.key}: saved = ${JSON.stringify(v)}`);
+    store.set(f.key, v, { secret, savedTo: rel });
+    if (file) toWrite.push([f.key, v]);
+    report.push(secret ? `${f.key}: saved (${v.length} chars, hidden) → ${ph}` : `${f.key} = ${JSON.stringify(v)} → ${ph}`);
   }
 
-  if (toWrite.length) upsertEnv(file, toWrite);
-  const gi = toWrite.length ? ensureGitignored(file) : "";
-  const lines = [`Wrote to ${rel}:`, ...report.map((r) => `- ${r}`)];
+  let gi = "";
+  if (file && toWrite.length) {
+    upsertEnv(file, toWrite);
+    for (const [k] of toWrite) store.addSavedTo(k, rel);
+    gi = ensureGitignored(file);
+  }
+  const lines = ["Saved:", ...report.map((r) => `- ${r}`)];
+  if (file && toWrite.length) lines.push(`Also written to ${rel} (${toWrite.map(([k]) => k).join(", ")}).${gi}`);
   if (missing.length) lines.push(`Missing required value(s): ${missing.join(", ")} — ask again if still needed.`);
-  if (gi) lines.push(gi.trim());
-  lines.push(
-    `To use them, load the file without printing it, e.g. \`set -a; . ${JSON.stringify(rel)}; set +a; <command>\`. Never cat, echo or grep the file.`,
-  );
+  lines.push("", USAGE);
   return text(lines.join("\n"));
+}
+
+async function listSecrets() {
+  const items = store.list();
+  if (!items.length) return text("No values stored for this project yet. Use request_input to ask the human for one.");
+  const lines = items.map((m) => {
+    const where = m.savedTo?.length ? `; also in ${m.savedTo.join(", ")}` : "";
+    const kind = m.secret === false ? `= ${JSON.stringify(store.get(m.name))}` : `(secret, ${m.length} chars)`;
+    return `- {{secret:${m.name}}} ${kind}${where}; updated ${m.updatedAt}`;
+  });
+  return text([...lines, "", USAGE].join("\n"));
+}
+
+async function forgetSecrets(args) {
+  const names = Array.isArray(args.names) ? args.names.filter((n) => typeof n === "string" && NAME_RE.test(n)) : [];
+  if (!names.length) return text("Pass `names`: the stored names to delete.", true);
+  const gone = [];
+  const unknown = [];
+  for (const n of names) {
+    if (store.has(n)) {
+      store.remove(n);
+      gone.push(n);
+    } else unknown.push(n);
+  }
+  return text(
+    [gone.length ? `Deleted from the store: ${gone.join(", ")}. Files they were written to are unchanged.` : "", unknown.length ? `Not stored: ${unknown.join(", ")}.` : ""]
+      .filter(Boolean)
+      .join(" "),
+  );
 }
 
 async function confirmStep(args) {
@@ -393,7 +441,12 @@ async function confirmStep(args) {
   return text(`${done ? "User confirmed the step is done." : "User has NOT completed the step."}${note}`);
 }
 
-const HANDLERS = { request_input: requestInput, confirm_step: confirmStep };
+const HANDLERS = {
+  request_input: requestInput,
+  confirm_step: confirmStep,
+  list_secrets: listSecrets,
+  forget_secrets: forgetSecrets,
+};
 
 // ── Dispatcher ───────────────────────────────────────────────────────────
 
@@ -422,7 +475,7 @@ async function handle(msg) {
           capabilities: { tools: {} },
           serverInfo: SERVER_INFO,
           instructions:
-            "When you need a secret or any value only the human has, call request_input instead of asking them to paste it in chat. Use confirm_step for manual dashboard steps.",
+            "When you need a secret or any value only the human has, call request_input instead of asking them to paste it in chat. Values come back as {{secret:NAME}} placeholders: put a placeholder in a Bash command or any MCP tool argument and the real value is swapped in when the tool runs. Use confirm_step for manual dashboard steps.",
         },
       });
     }

@@ -13,6 +13,7 @@ import { ElicitRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { quoteEnvValue } from "../plugins/human-input/server/index.mjs";
 
 const SERVER = fileURLToPath(new URL("../plugins/human-input/server/index.mjs", import.meta.url));
+const STORE = fs.mkdtempSync(path.join(os.tmpdir(), "human-input-store-"));
 const SECRET = "sk_test_51Hq'$weird \"value\"\\ with spaces";
 
 function tmpProject({ git = true } = {}) {
@@ -37,7 +38,7 @@ async function connect(dir, { elicitation = true, answer } = {}) {
     command: process.execPath,
     args: [SERVER],
     cwd: dir,
-    env: { ...process.env, CLAUDE_PROJECT_DIR: dir, HUMAN_INPUT_NO_BROWSER: "1" },
+    env: { ...process.env, CLAUDE_PROJECT_DIR: dir, HUMAN_INPUT_NO_BROWSER: "1", HUMAN_INPUT_STORE: STORE },
     stderr: "pipe",
   });
   await client.connect(transport);
@@ -46,14 +47,14 @@ async function connect(dir, { elicitation = true, answer } = {}) {
 
 const resultText = (r) => r.content.map((c) => c.text).join("\n");
 
-test("lists both tools", async () => {
+test("lists all tools", async () => {
   const { client } = await connect(tmpProject(), { answer: () => ({ action: "cancel" }) });
   const { tools } = await client.listTools();
-  assert.deepEqual(tools.map((t) => t.name).sort(), ["confirm_step", "request_input"]);
+  assert.deepEqual(tools.map((t) => t.name).sort(), ["confirm_step", "forget_secrets", "list_secrets", "request_input"]);
   await client.close();
 });
 
-test("secret is saved to .env, gitignored, and never returned", async () => {
+test("secret is stored, written to save_to, gitignored, and never returned", async () => {
   const dir = tmpProject();
   const { client, seen } = await connect(dir, {
     answer: () => ({ action: "accept", content: { STRIPE_SECRET_KEY: SECRET, STRIPE_PUBLISHABLE_KEY: "pk_test_abc" } }),
@@ -64,6 +65,7 @@ test("secret is saved to .env, gitignored, and never returned", async () => {
       title: "Stripe test keys",
       url: "https://dashboard.stripe.com/test/apikeys",
       steps: ["Copy the publishable key", "Reveal and copy the secret key"],
+      save_to: ".env",
       fields: [
         { key: "STRIPE_PUBLISHABLE_KEY", label: "Publishable key", secret: false },
         { key: "STRIPE_SECRET_KEY", label: "Secret key", description: "starts with sk_test_" },
@@ -74,8 +76,8 @@ test("secret is saved to .env, gitignored, and never returned", async () => {
   assert.ok(!res.isError, out);
   assert.ok(!out.includes(SECRET), "secret leaked into tool result");
   assert.ok(!out.includes("sk_test_51"), "secret prefix leaked into tool result");
-  assert.match(out, /STRIPE_PUBLISHABLE_KEY: saved = "pk_test_abc"/);
-  assert.match(out, /STRIPE_SECRET_KEY: saved \(\d+ chars, hidden\)/);
+  assert.match(out, /STRIPE_PUBLISHABLE_KEY = "pk_test_abc" → \{\{secret:STRIPE_PUBLISHABLE_KEY\}\}/);
+  assert.match(out, /STRIPE_SECRET_KEY: saved \(\d+ chars, hidden\) → \{\{secret:STRIPE_SECRET_KEY\}\}/);
 
   // The form carried the wizard info.
   assert.match(seen[0].message, /https:\/\/dashboard\.stripe\.com\/test\/apikeys/);
@@ -98,15 +100,16 @@ test("updates existing keys in place and keeps them when left empty", async () =
   fs.writeFileSync(path.join(dir, ".gitignore"), ".env\n");
   let answers = { TOKEN: "new-token" };
   const { client, seen } = await connect(dir, { answer: () => ({ action: "accept", content: answers }) });
-  const call = () => client.callTool({ name: "request_input", arguments: { fields: [{ key: "TOKEN" }] } });
+  const call = () => client.callTool({ name: "request_input", arguments: { save_to: ".env", fields: [{ key: "TOKEN" }] } });
 
   await call();
   assert.equal(fs.readFileSync(path.join(dir, ".env"), "utf8"), "# config\nA=1\nexport TOKEN=new-token\nB=2\n");
-  assert.equal(seen[0].requestedSchema.required, undefined, "existing key should be optional");
+  assert.deepEqual(seen[0].requestedSchema.required, ["TOKEN"]);
 
   answers = { TOKEN: "" };
   const out = resultText(await call());
   assert.match(out, /TOKEN: kept existing value/);
+  assert.equal(seen[1].requestedSchema.required, undefined, "stored key should be optional");
   assert.match(fs.readFileSync(path.join(dir, ".env"), "utf8"), /TOKEN=new-token/);
   assert.equal(fs.readFileSync(path.join(dir, ".gitignore"), "utf8"), ".env\n", "gitignore untouched");
   await client.close();
@@ -118,6 +121,24 @@ test("decline writes nothing", async () => {
   const out = resultText(await client.callTool({ name: "request_input", arguments: { fields: [{ key: "X" }] } }));
   assert.match(out, /declined/);
   assert.ok(!fs.existsSync(path.join(dir, ".env")));
+  assert.match(resultText(await client.callTool({ name: "list_secrets", arguments: {} })), /No values stored/);
+  await client.close();
+});
+
+test("without save_to, values only go to the store; list and forget work", async () => {
+  const dir = tmpProject();
+  const { client } = await connect(dir, { answer: () => ({ action: "accept", content: { MODAL_TOKEN: "tok_1234567890" } }) });
+  const out = resultText(await client.callTool({ name: "request_input", arguments: { fields: [{ key: "MODAL_TOKEN" }] } }));
+  assert.match(out, /\{\{secret:MODAL_TOKEN\}\}/);
+  assert.ok(!out.includes("tok_1234567890"));
+  assert.deepEqual(fs.readdirSync(dir).filter((f) => f !== ".git"), [], "nothing written into the project");
+
+  const listed = resultText(await client.callTool({ name: "list_secrets", arguments: {} }));
+  assert.match(listed, /\{\{secret:MODAL_TOKEN\}\} \(secret, 14 chars\)/);
+  assert.ok(!listed.includes("tok_1234567890"));
+
+  assert.match(resultText(await client.callTool({ name: "forget_secrets", arguments: { names: ["MODAL_TOKEN", "NOPE"] } })), /Deleted.*MODAL_TOKEN.*Not stored: NOPE/s);
+  assert.match(resultText(await client.callTool({ name: "list_secrets", arguments: {} })), /No values stored/);
   await client.close();
 });
 
@@ -126,8 +147,11 @@ test("rejects bad keys and paths are relative to project", async () => {
   const { client } = await connect(dir, { answer: () => ({ action: "accept", content: { K: "v" } }) });
   const bad = await client.callTool({ name: "request_input", arguments: { fields: [{ key: "BAD KEY; rm" }] } });
   assert.ok(bad.isError);
-  await client.callTool({ name: "request_input", arguments: { env_file: "apps/web/.env.local", fields: [{ key: "K" }] } });
+  await client.callTool({ name: "request_input", arguments: { save_to: "apps/web/.env.local", fields: [{ key: "K" }] } });
   assert.equal(fs.readFileSync(path.join(dir, "apps/web/.env.local"), "utf8"), "K=v\n");
+  // 0.1's env_file still works as an alias.
+  await client.callTool({ name: "request_input", arguments: { env_file: "other.env", fields: [{ key: "K" }] } });
+  assert.equal(fs.readFileSync(path.join(dir, "other.env"), "utf8"), "K=v\n");
   await client.close();
 });
 
