@@ -1,15 +1,9 @@
 {
-  "description": "Swap {{secret:NAME}} placeholders for real values when a tool runs, and redact stored secrets from tool output.",
+  "description": "Redact stored secret values from Bash, Read and Grep output. Output only; tool input is never modified.",
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|mcp__.*",
-        "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/secrets.mjs\" pre", "timeout": 10 }]
-      }
-    ],
     "PostToolUse": [
       {
-        "matcher": ".*",
+        "matcher": "Bash|Read|Grep",
         "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/secrets.mjs\" post", "timeout": 10 }]
       }
     ]

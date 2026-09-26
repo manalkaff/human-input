@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // human-input: an MCP server that asks the human for values (API keys, tokens,
 // IDs) through MCP elicitation, keeps them in a store outside the model's
-// context, and tells the model only *that* they were saved plus a
-// {{secret:NAME}} placeholder. The plugin's hooks (../hooks/secrets.mjs) swap
-// placeholders for real values when a tool runs and redact values from tool
-// output.
+// context, and tells the model only *that* they were saved. Claude uses a
+// value in Bash as "$(human-input-secret NAME)" (../bin/human-input-secret),
+// and the plugin's hook (../hooks/secrets.mjs) redacts stored values from
+// tool output.
 //
 // Zero dependencies on purpose: plugins are installed by cloning, with no
 // `npm install` step, so this speaks newline-delimited JSON-RPC over stdio
@@ -194,10 +194,10 @@ function noElicitationFallback(names) {
 
 const USAGE = [
   "How to use stored values (you never see secret ones):",
-  "- Bash: put {{secret:NAME}} in the command, unquoted or inside double quotes, e.g. `gh secret set NAME --body {{secret:NAME}}`. It becomes a $(cat …) that reads the value when the command runs.",
-  "- Any other MCP tool: put {{secret:NAME}} in the argument; the real value is swapped in just before the call.",
-  "- Files: pass save_to to request_input, or write it with Bash, e.g. `printf 'token = \"%s\"\\n' {{secret:NAME}} >> config.toml`.",
-  "Secret values that show up in tool output are replaced with their placeholder.",
+  "- Bash: `\"$(human-input-secret NAME)\"` expands to the value when the command runs, e.g. `gh secret set NAME --body \"$(human-input-secret NAME)\"` or `modal secret create app NAME=\"$(human-input-secret NAME)\"`. Only ever use it inside another command; never run it on its own.",
+  "- Files: pass save_to to request_input, or write it with Bash, e.g. `printf 'token = \"%s\"\\n' \"$(human-input-secret NAME)\" >> config.toml`.",
+  "- MCP tools can't receive stored secrets (you'd have to see the value). Prefer the service's CLI; otherwise ask the human to enter it in that service themselves.",
+  "Stored secret values that show up in Bash/Read/Grep output are replaced with [redacted:NAME].",
 ].join("\n");
 
 // ── Tools ────────────────────────────────────────────────────────────────
@@ -221,8 +221,8 @@ const TOOLS = [
     description: [
       "Show the human an input form in this session. Use this whenever you need an API key, token, password, connection string or any value only the human has.",
       "NEVER ask the user to paste secrets into the chat — use this tool instead.",
-      "Values are kept in a private store outside the repo and outside your context. Secret values are NEVER returned to you: you get a {{secret:NAME}} placeholder that the plugin swaps for the real value when you use it in a Bash command or any MCP tool argument (e.g. a deploy platform's set-env tool, or `modal secret create`).",
-      "You decide where the value goes: pass save_to to also write it into a dotenv file the app reads (e.g. .env.local); otherwise use the placeholder with whatever CLI or MCP tool needs it.",
+      "Values are kept in a private store outside the repo and outside your context. Secret values are NEVER returned to you: in Bash, \"$(human-input-secret NAME)\" expands to the value when the command runs (e.g. `modal secret create app KEY=\"$(human-input-secret KEY)\"`).",
+      "You decide where the value goes: pass save_to to also write it into a dotenv file the app reads (e.g. .env.local); otherwise pipe it into whatever CLI needs it.",
       "Non-secret fields (secret: false) are also returned in plain text.",
       "Wizard-style: pass the `url` where the value can be found and concrete `steps`; the URL is opened in the user's browser when running locally and shown as a link otherwise.",
       "Group values that come from the same page into one call.",
@@ -237,7 +237,7 @@ const TOOLS = [
           items: {
             type: "object",
             properties: {
-              key: { type: "string", description: "Name, e.g. STRIPE_SECRET_KEY. Used as the placeholder name and, with save_to, the env var name." },
+              key: { type: "string", description: "Name, e.g. STRIPE_SECRET_KEY. Used with human-input-secret and, with save_to, as the env var name." },
               label: { type: "string", description: "Field label shown to the human." },
               description: { type: "string", description: "Hint, e.g. 'starts with sk_test_'." },
               secret: { type: "boolean", default: true, description: "true (default): never returned to you. false: value is returned in the tool result." },
@@ -269,7 +269,7 @@ const TOOLS = [
   {
     name: "list_secrets",
     title: "List stored values",
-    description: "List the names of values stored for this project (never the secret values themselves), with their {{secret:NAME}} placeholders and the files they were saved to. Check this before asking the human for something they may already have given.",
+    description: "List the names of values stored for this project (never the secret values themselves) and the files they were saved to. Check this before asking the human for something they may already have given.",
     inputSchema: { type: "object", properties: {} },
     annotations: { readOnlyHint: true, openWorldHint: false },
   },
@@ -353,7 +353,7 @@ async function requestInput(args) {
     const secret = f.secret !== false;
     let v = content[f.key];
     v = typeof v === "string" ? v.trim() : v == null ? "" : String(v);
-    const ph = `{{secret:${f.key}}}`;
+    const ph = store.useIn(f.key);
     if (!v) {
       if (store.has(f.key)) {
         if (file) toWrite.push([f.key, store.get(f.key)]);
@@ -376,7 +376,7 @@ async function requestInput(args) {
   const lines = ["Saved:", ...report.map((r) => `- ${r}`)];
   if (file && toWrite.length) lines.push(`Also written to ${rel} (${toWrite.map(([k]) => k).join(", ")}).${gi}`);
   if (missing.length) lines.push(`Missing required value(s): ${missing.join(", ")} — ask again if still needed.`);
-  lines.push("", USAGE, "", store.LOG_NOTICE);
+  lines.push("", USAGE);
   return text(lines.join("\n"));
 }
 
@@ -386,7 +386,7 @@ async function listSecrets() {
   const lines = items.map((m) => {
     const where = m.savedTo?.length ? `; also in ${m.savedTo.join(", ")}` : "";
     const kind = m.secret === false ? `= ${JSON.stringify(store.get(m.name))}` : `(secret, ${m.length} chars)`;
-    return `- {{secret:${m.name}}} ${kind}${where}; updated ${m.updatedAt}`;
+    return `- ${m.name} ${kind} → ${store.useIn(m.name)}${where}; updated ${m.updatedAt}`;
   });
   return text([...lines, "", USAGE].join("\n"));
 }
@@ -475,7 +475,7 @@ async function handle(msg) {
           capabilities: { tools: {} },
           serverInfo: SERVER_INFO,
           instructions:
-            "When you need a secret or any value only the human has, call request_input instead of asking them to paste it in chat. Values come back as {{secret:NAME}} placeholders: put a placeholder in a Bash command or any MCP tool argument and the real value is swapped in when the tool runs. Use confirm_step for manual dashboard steps.",
+            "When you need a secret or any value only the human has, call request_input instead of asking them to paste it in chat. Use a stored value in Bash as \"$(human-input-secret NAME)\". Use confirm_step for manual dashboard steps.",
         },
       });
     }

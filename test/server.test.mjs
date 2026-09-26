@@ -76,9 +76,8 @@ test("secret is stored, written to save_to, gitignored, and never returned", asy
   assert.ok(!res.isError, out);
   assert.ok(!out.includes(SECRET), "secret leaked into tool result");
   assert.ok(!out.includes("sk_test_51"), "secret prefix leaked into tool result");
-  assert.match(out, /STRIPE_PUBLISHABLE_KEY = "pk_test_abc" → \{\{secret:STRIPE_PUBLISHABLE_KEY\}\}/);
-  assert.match(out, /STRIPE_SECRET_KEY: saved \(\d+ chars, hidden\) → \{\{secret:STRIPE_SECRET_KEY\}\}/);
-  assert.match(out, /keeps a copy in the local session log/);
+  assert.match(out, /STRIPE_PUBLISHABLE_KEY = "pk_test_abc" → "\$\(human-input-secret STRIPE_PUBLISHABLE_KEY\)"/);
+  assert.match(out, /STRIPE_SECRET_KEY: saved \(\d+ chars, hidden\) → "\$\(human-input-secret STRIPE_SECRET_KEY\)"/);
 
   // The form carried the wizard info.
   assert.match(seen[0].message, /https:\/\/dashboard\.stripe\.com\/test\/apikeys/);
@@ -130,12 +129,12 @@ test("without save_to, values only go to the store; list and forget work", async
   const dir = tmpProject();
   const { client } = await connect(dir, { answer: () => ({ action: "accept", content: { MODAL_TOKEN: "tok_1234567890" } }) });
   const out = resultText(await client.callTool({ name: "request_input", arguments: { fields: [{ key: "MODAL_TOKEN" }] } }));
-  assert.match(out, /\{\{secret:MODAL_TOKEN\}\}/);
+  assert.match(out, /human-input-secret MODAL_TOKEN/);
   assert.ok(!out.includes("tok_1234567890"));
   assert.deepEqual(fs.readdirSync(dir).filter((f) => f !== ".git"), [], "nothing written into the project");
 
   const listed = resultText(await client.callTool({ name: "list_secrets", arguments: {} }));
-  assert.match(listed, /\{\{secret:MODAL_TOKEN\}\} \(secret, 14 chars\)/);
+  assert.match(listed, /MODAL_TOKEN \(secret, 14 chars\)/);
   assert.ok(!listed.includes("tok_1234567890"));
 
   assert.match(resultText(await client.callTool({ name: "forget_secrets", arguments: { names: ["MODAL_TOKEN", "NOPE"] } })), /Deleted.*MODAL_TOKEN.*Not stored: NOPE/s);
