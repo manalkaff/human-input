@@ -1,0 +1,17 @@
+{
+  "description": "Swap {{secret:NAME}} placeholders for real values when a tool runs, and redact stored secrets from tool output.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|mcp__.*",
+        "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/secrets.mjs\" pre", "timeout": 10 }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/secrets.mjs\" post", "timeout": 10 }]
+      }
+    ]
+  }
+}

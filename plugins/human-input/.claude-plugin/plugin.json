@@ -1,17 +1,27 @@
 {
   "name": "human-input",
   "displayName": "Human Input",
-  "version": "0.1.0",
-  "description": "An AskUserQuestion-style form for secrets: Claude opens the dashboard URL, tells you what to copy, and you paste the key into an in-session form. It's written straight to .env and never shown to Claude.",
-  "author": { "name": "manalkaff" },
+  "version": "0.2.0",
+  "description": "An AskUserQuestion-style form for secrets: Claude opens the dashboard URL, tells you what to copy, and you paste the key into an in-session form. Claude never sees it; it gets a {{secret:NAME}} placeholder it can send to an env file, a CLI or any MCP tool.",
+  "author": {
+    "name": "manalkaff"
+  },
   "homepage": "https://github.com/manalkaff/human-input",
   "repository": "https://github.com/manalkaff/human-input",
   "license": "MIT",
-  "keywords": ["secrets", "api-keys", "env", "wizard", "elicitation"],
+  "keywords": [
+    "secrets",
+    "api-keys",
+    "env",
+    "wizard",
+    "elicitation"
+  ],
   "mcpServers": {
     "human-input": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/server/index.mjs"]
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/server/index.mjs"
+      ]
     }
   }
 }

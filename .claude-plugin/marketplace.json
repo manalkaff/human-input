@@ -1,6 +1,8 @@
 {
   "name": "human-input",
-  "owner": { "name": "manalkaff" },
+  "owner": {
+    "name": "manalkaff"
+  },
   "metadata": {
     "description": "Ask the human for API keys and other values in the same Claude Code session, without the secret ever entering the transcript."
   },
@@ -8,10 +10,17 @@
     {
       "name": "human-input",
       "source": "./plugins/human-input",
-      "description": "Collect API keys, tokens and manual-step confirmations through an in-session form. Secrets go straight to .env; Claude only learns they were saved.",
-      "version": "0.1.0",
+      "description": "Collect API keys, tokens and manual-step confirmations through an in-session form. Claude never sees secret values; it uses {{secret:NAME}} placeholders that are swapped in for env files, CLIs and MCP tools.",
+      "version": "0.2.0",
       "category": "productivity",
-      "keywords": ["secrets", "api-keys", "env", "wizard", "elicitation", "setup"]
+      "keywords": [
+        "secrets",
+        "api-keys",
+        "env",
+        "wizard",
+        "elicitation",
+        "setup"
+      ]
     }
   ]
 }
