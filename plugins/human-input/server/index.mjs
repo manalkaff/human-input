@@ -376,7 +376,7 @@ async function requestInput(args) {
   const lines = ["Saved:", ...report.map((r) => `- ${r}`)];
   if (file && toWrite.length) lines.push(`Also written to ${rel} (${toWrite.map(([k]) => k).join(", ")}).${gi}`);
   if (missing.length) lines.push(`Missing required value(s): ${missing.join(", ")} — ask again if still needed.`);
-  lines.push("", USAGE);
+  lines.push("", USAGE, "", store.LOG_NOTICE);
   return text(lines.join("\n"));
 }
 

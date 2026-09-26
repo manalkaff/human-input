@@ -96,3 +96,10 @@ test("post hook redacts secrets from Bash, Read and MCP output (but not non-secr
 
   assert.equal(runHook("post", { tool_name: "Bash", tool_response: { stdout: "nothing here" } }), undefined);
 });
+
+test("post hook shows the log notice to the human after a form is submitted", () => {
+  const tool = "mcp__plugin_human-input_human-input__request_input";
+  const ok = runHook("post", { tool_name: tool, tool_response: [{ type: "text", text: "Saved:\n- X: saved" }] });
+  assert.match(ok.systemMessage, /local session log/);
+  assert.equal(runHook("post", { tool_name: tool, tool_response: [{ type: "text", text: "The user declined the input form" }] }), undefined);
+});

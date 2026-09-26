@@ -182,6 +182,10 @@ function pre(input) {
 }
 
 function post(input) {
+  // After the human submits a request_input form, show them the log notice.
+  if (/^mcp__plugin_human-input_.*__request_input$/.test(input.tool_name ?? "") && JSON.stringify(input.tool_response ?? "").includes("Saved:")) {
+    return emit({ systemMessage: store.LOG_NOTICE });
+  }
   const project = process.env.CLAUDE_PROJECT_DIR || input.cwd;
   const pairs = store.redactable(project);
   if (!pairs.length || input.tool_response === undefined) return;

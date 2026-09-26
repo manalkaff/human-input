@@ -78,6 +78,7 @@ test("secret is stored, written to save_to, gitignored, and never returned", asy
   assert.ok(!out.includes("sk_test_51"), "secret prefix leaked into tool result");
   assert.match(out, /STRIPE_PUBLISHABLE_KEY = "pk_test_abc" → \{\{secret:STRIPE_PUBLISHABLE_KEY\}\}/);
   assert.match(out, /STRIPE_SECRET_KEY: saved \(\d+ chars, hidden\) → \{\{secret:STRIPE_SECRET_KEY\}\}/);
+  assert.match(out, /keeps a copy in the local session log/);
 
   // The form carried the wizard info.
   assert.match(seen[0].message, /https:\/\/dashboard\.stripe\.com\/test\/apikeys/);

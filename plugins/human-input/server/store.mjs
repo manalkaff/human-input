@@ -113,3 +113,8 @@ export function redactable(project) {
     .filter(([, v]) => typeof v === "string" && v.length >= MIN_REDACT_LENGTH)
     .sort((a, b) => b[1].length - a[1].length);
 }
+
+// Shown to the human (hook systemMessage) and to Claude (tool result) after a
+// form is submitted.
+export const LOG_NOTICE =
+  "🔒 Secret values stay out of Claude's context. Note: if one is passed to an MCP tool via {{secret:NAME}}, Claude Code keeps a copy in the local session log; Bash placeholders and save_to don't.";
