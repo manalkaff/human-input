@@ -101,7 +101,8 @@ value (mode 600) and a `meta.json` holding names only.
 - **Swapping values into MCP tool arguments.** Claude Code saves the hook's
   output in the local session log. For MCP tools that output contains the
   value, because the tool needs it literally. Claude still never sees it.
-  Bash placeholders and `save_to` don't have this issue.
+  Bash placeholders and `save_to` don't have this issue. After you submit a form, a one-line notice
+  says this to you and to Claude.
 - **Bash output is redacted, but the side effects are real.** If Claude
   writes a secret into a file, that file holds the real value.
 - **Short values aren't redacted.** Values under 6 characters are skipped, to
