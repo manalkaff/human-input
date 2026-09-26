@@ -1,10 +1,13 @@
-// The secret store shared by the MCP server and the hooks.
+// The secret store shared by the MCP server, the redaction hook and the
+// `human-input-secret` command.
 //
 // Values live outside the repo, one file per value (mode 600), in a directory
 // per project:
-//   ${CLAUDE_PLUGIN_DATA:-~/.claude/human-input}/projects/<hash>/values/NAME
-//   ${CLAUDE_PLUGIN_DATA:-~/.claude/human-input}/projects/<hash>/meta.json
-// meta.json holds names and bookkeeping only, never values.
+//   ~/.claude/human-input/projects/<hash of project path>/values/NAME
+//   ~/.claude/human-input/projects/<hash of project path>/meta.json
+// meta.json holds names and bookkeeping only, never values. The location is
+// fixed (not $CLAUDE_PLUGIN_DATA) because commands on the plugin's bin/ PATH
+// don't receive plugin environment variables.
 
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -12,7 +15,11 @@ import os from "node:os";
 import path from "node:path";
 
 export const NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
-export const PLACEHOLDER_RE = /\{\{secret:([A-Za-z_][A-Za-z0-9_]*)\}\}/g;
+
+// How Claude refers to a stored value in a Bash command.
+export const useIn = (name) => `"$(human-input-secret ${name})"`;
+// What a stored secret is replaced with when it shows up in tool output.
+export const redactedLabel = (name) => `[redacted:${name}]`;
 
 // Values shorter than this aren't redacted from tool output: too likely to
 // collide with ordinary text.
@@ -23,7 +30,7 @@ export function projectDir() {
 }
 
 export function storeDir(project = projectDir()) {
-  const base = process.env.HUMAN_INPUT_STORE || process.env.CLAUDE_PLUGIN_DATA || path.join(os.homedir(), ".claude", "human-input");
+  const base = process.env.HUMAN_INPUT_STORE || path.join(os.homedir(), ".claude", "human-input");
   let real = project;
   try {
     real = fs.realpathSync(project);
@@ -114,7 +121,12 @@ export function redactable(project) {
     .sort((a, b) => b[1].length - a[1].length);
 }
 
-// Shown to the human (hook systemMessage) and to Claude (tool result) after a
-// form is submitted.
-export const LOG_NOTICE =
-  "🔒 Secret values stay out of Claude's context. Note: if one is passed to an MCP tool via {{secret:NAME}}, Claude Code keeps a copy in the local session log; Bash placeholders and save_to don't.";
+// The project whose store holds `name`: CLAUDE_PROJECT_DIR if set, else the
+// nearest of `start` and its parents (Claude may have cd'ed into a subdir).
+export function findProject(name, start = process.cwd()) {
+  if (process.env.CLAUDE_PROJECT_DIR) return process.env.CLAUDE_PROJECT_DIR;
+  for (let dir = path.resolve(start); ; dir = path.dirname(dir)) {
+    if (has(name, dir)) return dir;
+    if (path.dirname(dir) === dir) return undefined;
+  }
+}

@@ -1,9 +1,8 @@
 # human-input
 
 A Claude Code plugin that lets Claude ask you for API keys and other secrets in
-the same session, through a form, and then use them wherever they're needed
-(an env file, a CLI, another MCP tool) without the value ever entering the
-conversation.
+the same session, through a form, and then put them where they're needed (an
+env file or a CLI) without the value ever entering the conversation.
 
 When Claude hits a step that needs a key, it no longer asks you to paste it
 into the chat (which puts it in the transcript and gets you told to rotate it).
@@ -28,8 +27,8 @@ You paste the key and press Enter. Claude only sees:
 
 ```
 Saved:
-- STRIPE_PUBLISHABLE_KEY = "pk_test_…" → {{secret:STRIPE_PUBLISHABLE_KEY}}
-- STRIPE_SECRET_KEY: saved (107 chars, hidden) → {{secret:STRIPE_SECRET_KEY}}
+- STRIPE_PUBLISHABLE_KEY = "pk_test_…" → "$(human-input-secret STRIPE_PUBLISHABLE_KEY)"
+- STRIPE_SECRET_KEY: saved (107 chars, hidden) → "$(human-input-secret STRIPE_SECRET_KEY)"
 Also written to .env.local (STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY).
 ```
 
@@ -37,6 +36,12 @@ It works like `AskUserQuestion` combined with Matt Pocock's
 [wizard](https://github.com/mattpocock/skills/tree/main/skills/engineering/wizard):
 it shows the page URL and exact steps, and captures the values, all without
 leaving the session.
+
+## How to use it
+
+Install it once and Claude uses it automatically. Whenever a task needs a key
+or a manual dashboard step, the form appears. You can also just say "ask me
+for my OpenAI key", or run `/human-input:human-input`.
 
 ## Claude decides where the value goes
 
@@ -46,20 +51,20 @@ sends it wherever the task needs it:
 | Destination | What Claude does |
 | --- | --- |
 | A dotenv file | `request_input` with `save_to: ".env.local"` (any path; created with mode 600 and git-ignored) |
-| A CLI | `gh secret set STRIPE_KEY --body {{secret:STRIPE_KEY}}`, `modal secret create stripe STRIPE_KEY={{secret:STRIPE_KEY}}`, … |
-| Another MCP tool | `mcp__dokploy__…({ "env": "STRIPE_KEY={{secret:STRIPE_KEY}}" })` |
-| Any other file | `printf 'token = "%s"\n' {{secret:TOKEN}} >> config.toml` |
+| A CLI | `gh secret set STRIPE_KEY --body "$(human-input-secret STRIPE_KEY)"`, `modal secret create stripe STRIPE_KEY="$(human-input-secret STRIPE_KEY)"`, … |
+| Any other file | `printf 'token = "%s"\n' "$(human-input-secret TOKEN)" >> config.toml` |
 
-The plugin's hooks make the placeholders work:
+`human-input-secret` is a command the plugin adds to the Bash PATH. The shell
+expands it when the command runs, so the value never appears in anything
+Claude writes or reads. If a stored secret does show up in Bash, Read or Grep
+output (a `cat .env`, an API echoing your key back), a `PostToolUse` hook
+replaces it with `[redacted:NAME]` before Claude sees it.
 
-- **Before a tool runs** (`PreToolUse`), `{{secret:NAME}}` is replaced with the
-  real value. In Bash it becomes `"$(cat '<store>/NAME')"`, so the command
-  reads the value when it runs and the value is never written into the
-  command itself. In MCP tool arguments the literal value is swapped in.
-  An unknown name blocks the call and tells Claude to ask for it first.
-- **After any tool runs** (`PostToolUse`), stored secret values that appear
-  in the output (a `cat .env`, an API echoing your key back) are replaced
-  with their placeholder before Claude sees them.
+The plugin never rewrites tool input and never auto-approves anything.
+
+Passing a stored secret to another MCP tool isn't supported, because its
+arguments would contain the value. Claude uses the service's CLI instead, or
+asks you to enter the value in that service yourself.
 
 ## Install
 
@@ -86,31 +91,31 @@ and never print values.
 
 ## Where things are stored
 
-`$CLAUDE_PLUGIN_DATA/projects/<hash of project path>/`, which is usually
-`~/.claude/plugins/data/human-input-human-input/…`. There is one file per
-value (mode 600) and a `meta.json` holding names only.
+`~/.claude/human-input/projects/<hash of project path>/`. There is one file
+per value (mode 600) and a `meta.json` holding names only.
 
 ## Limits
 
+- **Claude Code only, not claude.ai.** It's a local (stdio) MCP server, so it
+  runs in Claude Code (terminal, desktop, web sessions) and Cowork.
 - **Elicitation support.** Claude Code 2.1.283 advertises form-mode
   elicitation to local stdio servers (verified). If a client doesn't support
   it, the tool refuses. It tells Claude to have you put the value in place
   yourself, and not to ask for it in chat.
 - **Masking.** Claude Code's form may show what you type on screen as you
   type it. It isn't sent to Claude.
-- **Swapping values into MCP tool arguments.** Claude Code saves the hook's
-  output in the local session log. For MCP tools that output contains the
-  value, because the tool needs it literally. Claude still never sees it.
-  Bash placeholders and `save_to` don't have this issue. After you submit a form, a one-line notice
-  says this to you and to Claude.
-- **Bash output is redacted, but the side effects are real.** If Claude
-  writes a secret into a file, that file holds the real value.
-- **Short values aren't redacted.** Values under 6 characters are skipped, to
-  avoid mangling ordinary output. So are `secret: false` values.
+- **Side effects are real.** If Claude writes a secret into a file, that file
+  holds the real value. Redaction only covers what Claude sees.
+- **Not everything is redacted.** Values under 6 characters are skipped, to
+  avoid mangling ordinary output, and so are `secret: false` values.
+  Redaction only runs on Bash, Read and Grep output.
 - **The MCP spec** says form-mode elicitation shouldn't be used for sensitive
   data, and recommends URL mode (a web page the server hosts). This plugin
   still uses form mode on purpose: the server runs locally, and the whole
   point is staying in the same window.
+- **Why not `userConfig`?** Plugin `userConfig` with `sensitive: true`
+  collects values once, when you install. This plugin collects whatever a
+  task turns out to need, mid-session.
 - **Cloud sessions are ephemeral.** The store and any files written in a
   Claude Code on the web session disappear with the container. For keys you
   need in every session, add them as environment secrets in the environment
@@ -122,7 +127,7 @@ value (mode 600) and a `meta.json` holding names only.
 
 ```
 npm install   # dev only: the official MCP SDK, used as the test client
-npm test      # end-to-end server tests + hook tests (runs real bash)
+npm test      # server tests + redaction hook and helper tests (runs real bash)
 claude plugin validate .
 ```
 

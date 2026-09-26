@@ -1,8 +1,8 @@
 {
   "name": "human-input",
   "displayName": "Human Input",
-  "version": "0.2.0",
-  "description": "An AskUserQuestion-style form for secrets: Claude opens the dashboard URL, tells you what to copy, and you paste the key into an in-session form. Claude never sees it; it gets a {{secret:NAME}} placeholder it can send to an env file, a CLI or any MCP tool.",
+  "version": "0.3.0",
+  "description": "An AskUserQuestion-style form for secrets: Claude opens the dashboard URL, tells you what to copy, and you paste the key into an in-session form. Claude never sees it; it saves it to an env file or passes it to a CLI via \"$(human-input-secret NAME)\".",
   "author": {
     "name": "manalkaff"
   },
