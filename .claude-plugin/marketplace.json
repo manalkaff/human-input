@@ -9,9 +9,17 @@
   "plugins": [
     {
       "name": "human-input",
+      "displayName": "Human Input",
       "source": "./plugins/human-input",
       "description": "Collect API keys, tokens and manual-step confirmations through an in-session form. Claude never sees secret values; it saves them to env files or passes them to CLIs without reading them.",
       "version": "0.3.0",
+      "author": {
+        "name": "manalkaff",
+        "url": "https://github.com/manalkaff"
+      },
+      "homepage": "https://github.com/manalkaff/human-input/tree/main/plugins/human-input#readme",
+      "repository": "https://github.com/manalkaff/human-input",
+      "license": "MIT",
       "category": "productivity",
       "keywords": [
         "secrets",
