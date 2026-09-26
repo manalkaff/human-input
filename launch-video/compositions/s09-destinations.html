@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s09 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s09-head {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 70px;
+          text-align: center;
+          font-size: 86px;
+          white-space: nowrap;
+        }
+        #s09-head .serif-i {
+          color: var(--accent-soft);
+          font-size: 100px;
+        }
+        #s09-tokwrap {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 262px;
+          display: flex;
+          justify-content: center;
+        }
+        #s09-token {
+          font-size: 36px;
+          padding: 10px 24px;
+          border-radius: 14px;
+          box-shadow: 0 0 50px rgba(226, 121, 74, 0.3);
+        }
+        #s09-wires {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 1920px;
+          height: 1080px;
+          overflow: visible;
+        }
+        #s09-wires path {
+          fill: none;
+          stroke: rgba(226, 121, 74, 0.55);
+          stroke-width: 2;
+        }
+        #s09 .pulse {
+          position: absolute;
+          left: -9px;
+          top: -9px;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: var(--accent-soft);
+          box-shadow: 0 0 20px 6px rgba(226, 121, 74, 0.8);
+          opacity: 0;
+        }
+        #s09 .card {
+          position: absolute;
+          top: 470px;
+          width: 400px;
+          height: 450px;
+          border-radius: 22px;
+          background: linear-gradient(180deg, #191816 0%, #121110 100%);
+          border: 1px solid var(--line-2);
+          box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5);
+          padding: 26px 24px;
+          display: flex;
+          flex-direction: column;
+        }
+        #s09 .card .num {
+          font-family: var(--mono);
+          font-size: 19px;
+          color: var(--dim);
+          letter-spacing: 0.1em;
+        }
+        #s09 .card .ttl {
+          font-family: var(--sans);
+          font-size: 38px;
+          font-weight: 630;
+          letter-spacing: -0.03em;
+          margin: 6px 0 20px;
+          color: var(--text);
+        }
+        #s09 .card pre {
+          font-family: var(--mono);
+          font-size: 18.5px;
+          line-height: 1.6;
+          color: #d9d4ca;
+          background: rgba(0, 0, 0, 0.35);
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          padding: 16px 12px;
+          margin: 0;
+          white-space: pre;
+          flex: 1;
+        }
+        #s09 .card .tk {
+          color: var(--accent-soft);
+        }
+        #s09 .card .foot {
+          margin-top: 16px;
+          font-family: var(--sans);
+          font-size: 20px;
+          color: var(--muted);
+        }
+      </style>
+
+      <div id="s09" data-composition-id="s09-destinations" data-width="1920" data-height="1080" data-duration="6.8">
+        <div class="bg-fill"></div>
+        <div class="bg-glow"></div>
+        <div class="bg-grid"></div>
+
+        <div class="display" id="s09-head">Claude decides <span class="serif-i">where it goes.</span></div>
+
+        <svg id="s09-wires" viewBox="0 0 1920 1080">
+          <path id="s09-w1" d="M960 330 V400 H300 V470" pathLength="100" stroke-dasharray="100" />
+          <path id="s09-w2" d="M960 330 V400 H740 V470" pathLength="100" stroke-dasharray="100" />
+          <path id="s09-w3" d="M960 330 V400 H1180 V470" pathLength="100" stroke-dasharray="100" />
+          <path id="s09-w4" d="M960 330 V400 H1620 V470" pathLength="100" stroke-dasharray="100" />
+        </svg>
+
+        <div id="s09-tokwrap"><div class="token" id="s09-token">{{secret:STRIPE_KEY}}</div></div>
+
+        <div class="card" id="s09-c1" style="left: 100px">
+          <div class="num">01</div>
+          <div class="ttl">A dotenv file</div>
+<pre>request_input({
+  …
+  save_to: <span class="tk">".env.local"</span>
+})</pre>
+          <div class="foot">Created mode 600, git-ignored</div>
+        </div>
+        <div class="card" id="s09-c2" style="left: 540px">
+          <div class="num">02</div>
+          <div class="ttl">Any CLI</div>
+<pre>gh secret set STRIPE_KEY \
+  --body <span class="tk">{{secret:STRIPE_KEY}}</span></pre>
+          <div class="foot">gh, modal, fly, wrangler…</div>
+        </div>
+        <div class="card" id="s09-c3" style="left: 980px">
+          <div class="num">03</div>
+          <div class="ttl">Another MCP tool</div>
+<pre>mcp__dokploy__…({
+  "env": "STRIPE_KEY=
+  <span class="tk">{{secret:STRIPE_KEY}}</span>"
+})</pre>
+          <div class="foot">Value swapped in at call time</div>
+        </div>
+        <div class="card" id="s09-c4" style="left: 1420px">
+          <div class="num">04</div>
+          <div class="ttl">Any other file</div>
+<pre>printf 'token = "%s"\n' \
+  <span class="tk">{{secret:TOKEN}}</span> \
+  &gt;&gt; config.toml</pre>
+          <div class="foot">TOML, YAML, .npmrc…</div>
+        </div>
+
+        <div class="pulse" id="s09-p1"></div>
+        <div class="pulse" id="s09-p2"></div>
+        <div class="pulse" id="s09-p3"></div>
+        <div class="pulse" id="s09-p4"></div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          const B = 0.3775;
+          tl.fromTo("#s09-head", { opacity: 0, y: 30, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out" }, 0);
+          tl.fromTo("#s09-token", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, 0.38);
+          ["#s09-w1", "#s09-w2", "#s09-w3", "#s09-w4"].forEach((id, i) => {
+            tl.fromTo(id, { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.5, ease: "power2.inOut" }, 0.75 + i * 0.06);
+          });
+          const xs = [300, 740, 1180, 1620];
+          ["#s09-c1", "#s09-c2", "#s09-c3", "#s09-c4"].forEach((id, i) => {
+            tl.fromTo(id, { opacity: 0, y: 70, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "expo.out" }, B * (3 + i));
+          });
+          // a pulse travels down each wire, the card lights up on arrival
+          ["#s09-p1", "#s09-p2", "#s09-p3", "#s09-p4"].forEach((id, i) => {
+            const t = B * (8 + i * 2);
+            tl.set(id, { x: 960, y: 330, opacity: 1 }, t);
+            tl.to(id, { keyframes: [{ y: 400, duration: 0.1 }, { x: xs[i], duration: 0.22 }, { y: 470, duration: 0.1 }], ease: "none" }, t);
+            tl.to(id, { opacity: 0, duration: 0.1 }, t + 0.42);
+            const card = "#s09-c" + (i + 1);
+            tl.to(card, { borderColor: "rgba(226,121,74,0.85)", boxShadow: "0 0 60px rgba(226,121,74,0.35)", y: -10, duration: 0.18, ease: "power2.out" }, t + 0.4);
+            tl.to(card, { borderColor: "rgba(255,255,255,0.14)", boxShadow: "0 40px 90px rgba(0,0,0,0.5)", y: 0, duration: 0.5, ease: "power2.out" }, t + 0.62);
+          });
+          // exit
+          tl.to(["#s09-c1", "#s09-c2", "#s09-c3", "#s09-c4"], { y: 160, opacity: 0, duration: 0.35, ease: "power3.in", stagger: 0.04 }, 6.3);
+          tl.to(["#s09-head", "#s09-tokwrap", "#s09-wires"], { opacity: 0, duration: 0.3 }, 6.4);
+          window.__timelines["s09-destinations"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

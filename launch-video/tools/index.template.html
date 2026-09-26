@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>human-input — launch video</title>
+    <link rel="stylesheet" href="assets/theme.css" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script src="assets/fx.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #0b0a09; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #0b0a09; font-family: var(--sans); color: var(--text); }
+      #root > div[data-composition-src] { position: absolute; inset: 0; }
+      #grain {
+        position: absolute; inset: -60px; z-index: 50; pointer-events: none; opacity: 0.075; mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-size: 300px 300px;
+      }
+      #vignette {
+        position: absolute; inset: 0; z-index: 49; pointer-events: none;
+        background: radial-gradient(ellipse 85% 80% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+      }
+      #fade { position: absolute; inset: 0; z-index: 60; background: #000; pointer-events: none; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="63" data-width="1920" data-height="1080">
+{{SLOTS}}
+
+      <div id="vignette" class="clip" data-start="0" data-duration="63" data-track-index="5"></div>
+      <div id="grain" class="clip" data-start="0" data-duration="63" data-track-index="6"></div>
+      <div id="fade" class="clip" data-start="0" data-duration="63" data-track-index="7"></div>
+
+      <audio id="bgm" src="assets/audio/music-elevate-inspirate.mp3" data-start="0" data-duration="63" data-track-index="10" data-volume="1"
+        data-automation='{{AUTO}}'></audio>
+{{SFX}}
+    </div>
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+        // film grain: jump the noise tile 12 times a second
+        const frames = Math.floor(63 * 12);
+        tl.fromTo("#grain", { x: 0, y: 0 }, { x: 57, y: -43, duration: 63, ease: "steps(" + frames + ")" }, 0);
+        // fade up from black, fade out at the end
+        tl.fromTo("#fade", { opacity: 1 }, { opacity: 0, duration: 0.45, ease: "power1.out" }, 0);
+        tl.to("#fade", { opacity: 1, duration: 0.9, ease: "power1.in" }, 62.1);
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s10 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s10-eyebrow {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 72px;
+          text-align: center;
+          color: var(--accent-soft);
+        }
+        #s10 .row {
+          position: absolute;
+          left: 160px;
+          width: 1600px;
+        }
+        #s10 .rlab {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          margin-bottom: 18px;
+          font-family: var(--sans);
+          font-size: 40px;
+          font-weight: 620;
+          letter-spacing: -0.025em;
+        }
+        #s10 .hook {
+          font-family: var(--mono);
+          font-size: 21px;
+          font-weight: 500;
+          color: var(--accent-soft);
+          border: 1px solid rgba(226, 121, 74, 0.45);
+          background: rgba(226, 121, 74, 0.1);
+          border-radius: 8px;
+          padding: 4px 12px;
+          letter-spacing: 0.02em;
+        }
+        #s10 .panel {
+          position: relative;
+          border-radius: 18px;
+          background: linear-gradient(180deg, #171614 0%, #121110 100%);
+          border: 1px solid var(--line-2);
+          padding: 26px 34px;
+          font-family: var(--mono);
+          font-size: 34px;
+          line-height: 1.6;
+          white-space: nowrap;
+          overflow: hidden;
+          box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
+        }
+        #s10 .cap {
+          margin-top: 16px;
+          font-family: var(--sans);
+          font-size: 27px;
+          color: var(--muted);
+        }
+        #s10 .dollar {
+          color: var(--muted);
+        }
+        #s10-swap {
+          color: var(--accent-soft);
+        }
+        #s10-val {
+          color: var(--danger-soft);
+        }
+        #s10-scan {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 160px;
+          background: linear-gradient(90deg, transparent, rgba(226, 121, 74, 0.35) 70%, rgba(245, 178, 140, 0.95) 97%, transparent);
+          opacity: 0;
+        }
+      </style>
+
+      <div id="s10" data-composition-id="s10-hooks" data-width="1920" data-height="1080" data-duration="6.8">
+        <div class="bg-fill"></div>
+        <div class="bg-glow"></div>
+        <div class="bg-grid"></div>
+        <div class="eyebrow" id="s10-eyebrow">Under the hood · two hooks</div>
+
+        <div class="row" id="s10-rowA" style="top: 150px">
+          <div class="rlab">Before a tool runs <span class="hook">PreToolUse</span></div>
+          <div class="panel"><span class="dollar">$ </span><span id="s10-cmd">gh secret set STRIPE_KEY --body </span><span id="s10-swap">{{secret:STRIPE_KEY}}</span></div>
+          <div class="cap" id="s10-capA">Bash reads the value when the command runs. It never appears in the command itself.</div>
+        </div>
+
+        <div class="row" id="s10-rowB" style="top: 590px">
+          <div class="rlab">After any tool runs <span class="hook">PostToolUse</span></div>
+          <div class="panel" id="s10-panelB">
+            <div id="s10-l1"><span class="dollar">$ </span><span id="s10-cat">cat .env.local</span></div>
+            <div id="s10-l2">STRIPE_SECRET_KEY=<span id="s10-val">sk_test_<span></span>51NxT8qK2eZvKb3r9fQ7mA0pLw</span></div>
+            <div id="s10-scan"></div>
+          </div>
+          <div class="cap" id="s10-capB">Secret values in tool output are swapped back to placeholders before Claude reads it.</div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          tl.fromTo("#s10-eyebrow", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 0);
+          tl.fromTo("#s10-rowA", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.55, ease: "expo.out" }, 0.1);
+          const cmdEnd = HF.typeOn(tl, document.getElementById("s10-cmd"), 0.45, 40);
+          tl.fromTo("#s10-swap", { opacity: 0 }, { opacity: 1, duration: 0.01 }, cmdEnd);
+          HF.scramble(tl, document.getElementById("s10-swap"), "\"$(cat '<store>/STRIPE_KEY')\"", 1.9, 0.6, 11);
+          tl.to("#s10-swap", { color: "#5fd69c", duration: 0.2 }, 2.45);
+          tl.fromTo("#s10-capA", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 2.5);
+
+          tl.fromTo("#s10-rowB", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.55, ease: "expo.out" }, 3.0);
+          HF.typeOn(tl, document.getElementById("s10-cat"), 3.2, 40);
+          tl.fromTo("#s10-l2", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 3.7);
+          tl.fromTo("#s10-scan", { opacity: 1, x: -170 }, { opacity: 1, x: 1560, duration: 0.8, ease: "power1.inOut" }, 4.1);
+          tl.to("#s10-scan", { opacity: 0, duration: 0.1 }, 4.9);
+          HF.scramble(tl, document.getElementById("s10-val"), "{{secret:STRIPE_SECRET_KEY}}", 4.3, 0.45, 23);
+          tl.to("#s10-val", { color: "#f5b28c", duration: 0.2 }, 4.7);
+          tl.fromTo("#s10-capB", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 5.0);
+          // exit
+          tl.to(["#s10-rowA", "#s10-rowB", "#s10-eyebrow"], { opacity: 0, y: -40, filter: "blur(10px)", duration: 0.35, ease: "power3.in", stagger: 0.05 }, 6.4);
+          window.__timelines["s10-hooks"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

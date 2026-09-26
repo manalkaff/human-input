@@ -1,0 +1,255 @@
+/* human-input launch video — shared design tokens, fonts and UI primitives. */
+
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+}
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("fonts/InstrumentSerif-Italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("fonts/InstrumentSerif-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+}
+
+:root {
+  --ink: #0b0a09;
+  --ink-cold: #08090b;
+  --panel: #141311;
+  --panel-2: #1b1a17;
+  --panel-cold: #111317;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --text: #f3efe7;
+  --muted: #8f897f;
+  --dim: #5d5850;
+  --accent: #e2794a;
+  --accent-soft: #f5b28c;
+  --accent-deep: #b4532b;
+  --danger: #ff5b4f;
+  --danger-soft: #ff9b92;
+  --ok: #5fd69c;
+  --code-blue: #8cb4ff;
+  --sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, monospace;
+  --serif: "Instrument Serif", Georgia, serif;
+}
+
+/* ---------- Terminal window (Claude Code session look) ---------- */
+.term {
+  position: absolute;
+  background: linear-gradient(180deg, #171614 0%, #121110 100%);
+  border: 1px solid var(--line-2);
+  border-radius: 22px;
+  box-shadow:
+    0 60px 140px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  font-family: var(--mono);
+  color: var(--text);
+}
+.term.cold {
+  background: linear-gradient(180deg, #13151a 0%, #0e1014 100%);
+}
+.term-bar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 22px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+}
+.term-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #3a3833;
+}
+.term-title {
+  flex: 1;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+  margin-right: 60px;
+}
+.term-body {
+  padding: 34px 44px;
+  font-size: 25px;
+  line-height: 1.55;
+}
+.t-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 18px;
+  white-space: nowrap;
+}
+.t-prompt {
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  padding: 14px 20px;
+  color: var(--text);
+  display: flex;
+  gap: 16px;
+  margin-bottom: 26px;
+  white-space: nowrap;
+}
+.t-caret {
+  color: var(--muted);
+}
+.t-bullet {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-top: 13px;
+  background: var(--text);
+}
+.t-bullet.ok {
+  background: var(--ok);
+}
+.t-bullet.accent {
+  background: var(--accent);
+}
+.t-bullet.warn {
+  background: #f0b44c;
+}
+.t-sub {
+  display: flex;
+  gap: 14px;
+  color: var(--muted);
+  margin: -10px 0 18px 32px;
+  white-space: nowrap;
+}
+.t-elbow {
+  flex: none;
+  width: 18px;
+  height: 20px;
+  margin-top: 2px;
+  border-left: 2px solid var(--dim);
+  border-bottom: 2px solid var(--dim);
+}
+.cursor {
+  display: inline-block;
+  width: 13px;
+  height: 30px;
+  background: var(--text);
+  vertical-align: -6px;
+  margin-left: 3px;
+}
+.k-dim {
+  color: var(--muted);
+}
+.k-accent {
+  color: var(--accent);
+}
+.k-tool {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Shared type ---------- */
+.display {
+  font-family: var(--sans);
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  color: var(--text);
+}
+.serif-i {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 22px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+.mask > span {
+  display: block;
+}
+
+/* ---------- Background layers ---------- */
+.bg-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+}
+.bg-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 58%, rgba(226, 121, 74, 0.16) 0%, transparent 70%),
+    radial-gradient(ellipse 90% 70% at 50% 110%, rgba(226, 121, 74, 0.1) 0%, transparent 70%);
+}
+.bg-glow.cold {
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 45%, rgba(120, 140, 180, 0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 120%, rgba(255, 91, 79, 0.06) 0%, transparent 70%);
+}
+.bg-grid {
+  position: absolute;
+  inset: -2px;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 80px 80px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 80%);
+}
+
+/* ---------- Chips / placeholder token ---------- */
+.token {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--accent-soft);
+  background: rgba(226, 121, 74, 0.12);
+  border: 1px solid rgba(226, 121, 74, 0.45);
+  border-radius: 10px;
+  padding: 2px 12px;
+  white-space: nowrap;
+}
+.secret-hot {
+  color: var(--danger-soft);
+  background: rgba(255, 91, 79, 0.12);
+  border-radius: 6px;
+  padding: 0 6px;
+}

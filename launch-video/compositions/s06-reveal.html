@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s06 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s06-flash {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at 50% 50%, rgba(255, 214, 190, 1) 0%, rgba(226, 121, 74, 0.85) 18%, rgba(226, 121, 74, 0) 60%);
+          opacity: 0;
+        }
+        #s06-ring {
+          position: absolute;
+          left: 660px;
+          top: 240px;
+          width: 600px;
+          height: 600px;
+          border-radius: 50%;
+          border: 3px solid rgba(245, 178, 140, 0.9);
+          opacity: 0;
+        }
+        #s06-stage {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        #s06-lockup {
+          display: flex;
+          align-items: center;
+          gap: 44px;
+        }
+        #s06-mark {
+          width: 180px;
+          height: 180px;
+          flex: none;
+          filter: drop-shadow(0 20px 60px rgba(226, 121, 74, 0.55));
+        }
+        #s06-word {
+          font-size: 176px;
+          font-weight: 680;
+          letter-spacing: -0.055em;
+          overflow: hidden;
+          padding: 0 0.04em 0.12em 0;
+          line-height: 1;
+          white-space: nowrap;
+        }
+        #s06-word .ch {
+          display: inline-block;
+        }
+        #s06-eyebrow {
+          margin-top: 36px;
+          color: var(--accent-soft);
+        }
+        #s06-tag {
+          margin-top: 64px;
+          display: flex;
+          gap: 34px;
+          font-family: var(--sans);
+          font-size: 66px;
+          font-weight: 560;
+          letter-spacing: -0.035em;
+          white-space: nowrap;
+        }
+        #s06-tag .serif-i {
+          font-size: 80px;
+          color: var(--accent-soft);
+          line-height: 0.8;
+        }
+      </style>
+
+      <div id="s06" data-composition-id="s06-reveal" data-width="1920" data-height="1080" data-duration="4.53">
+        <div class="bg-fill"></div>
+        <div class="bg-glow" id="s06-glow"></div>
+        <div class="bg-grid"></div>
+        <div id="s06-flash"></div>
+        <div id="s06-ring"></div>
+
+        <div id="s06-stage">
+          <div id="s06-lockup">
+            <svg id="s06-mark" viewBox="0 0 160 160">
+              <defs>
+                <linearGradient id="s06-g" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#f09a6c" />
+                  <stop offset="0.55" stop-color="#e2794a" />
+                  <stop offset="1" stop-color="#b9552c" />
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="160" height="160" rx="40" fill="url(#s06-g)" />
+              <rect x="1" y="1" width="158" height="158" rx="39" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" />
+              <path d="M52 48 q-12 0 -12 12 v10 q0 10 -9 10 q9 0 9 10 v10 q0 12 12 12" fill="none" stroke="#1a0f0a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M108 48 q12 0 12 12 v10 q0 10 9 10 q-9 0 -9 10 v10 q0 12 -12 12" fill="none" stroke="#1a0f0a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="80" cy="70" r="13" fill="#1a0f0a" />
+              <path d="M73 76 L87 76 L91 106 L69 106 Z" fill="#1a0f0a" />
+            </svg>
+            <div class="display" id="s06-word">human-input</div>
+          </div>
+          <div class="eyebrow" id="s06-eyebrow">A plugin for Claude Code</div>
+          <div id="s06-tag">
+            <span id="s06-t1">Claude asks.</span>
+            <span id="s06-t2">You type.</span>
+            <span id="s06-t3">Claude <span class="serif-i">never</span> sees it.</span>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          const chars = HF.splitChars(document.getElementById("s06-word"));
+          // impact
+          tl.fromTo("#s06-flash", { opacity: 1, scale: 0.6 }, { opacity: 0, scale: 1.6, duration: 0.7, ease: "power2.out" }, 0);
+          tl.fromTo("#s06-ring", { opacity: 1, scale: 0.05 }, { opacity: 0, scale: 2.6, duration: 0.9, ease: "expo.out" }, 0);
+          tl.fromTo("#s06-glow", { opacity: 0 }, { opacity: 1, duration: 0.8 }, 0);
+          // mark lands centered, then the lockup opens
+          const lockupShift = 545;
+          tl.fromTo("#s06-mark", { scale: 0, rotation: -25, x: lockupShift }, { scale: 1, rotation: 0, x: lockupShift, duration: 0.55, ease: "back.out(1.8)" }, 0.02);
+          tl.to("#s06-mark", { x: 0, duration: 0.6, ease: "expo.inOut" }, 0.58);
+          tl.fromTo(chars, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.55, ease: "expo.out", stagger: 0.028 }, 0.78);
+          tl.fromTo("#s06-eyebrow", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.4);
+          // tagline on the beat
+          [["#s06-t1", 2.265], ["#s06-t2", 2.64], ["#s06-t3", 3.02]].forEach(([id, t]) => {
+            tl.fromTo(id, { opacity: 0, y: 26, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.32, ease: "power3.out" }, t);
+          });
+          tl.fromTo("#s06-stage", { scale: 1 }, { scale: 1.035, duration: 4.0, ease: "none" }, 0);
+          // exit: push through
+          tl.to("#s06-stage", { scale: 1.6, opacity: 0, filter: "blur(18px)", duration: 0.4, ease: "power3.in" }, 4.13);
+          window.__timelines["s06-reveal"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

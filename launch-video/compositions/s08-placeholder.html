@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s08 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s08-head {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 110px;
+          text-align: center;
+          font-size: 96px;
+          white-space: nowrap;
+        }
+        #s08-head2 {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 214px;
+          text-align: center;
+          font-size: 104px;
+          color: var(--accent-soft);
+          white-space: nowrap;
+        }
+        #s08 .lab {
+          position: absolute;
+          top: 440px;
+        }
+        #s08 .half {
+          position: absolute;
+          top: 480px;
+          height: 140px;
+          overflow: hidden;
+        }
+        #s08-left {
+          left: 0;
+          width: 958px;
+        }
+        #s08-right {
+          left: 962px;
+          width: 958px;
+        }
+        #s08-secret {
+          position: absolute;
+          left: 110px;
+          top: 36px;
+          font-family: var(--mono);
+          font-size: 38px;
+          font-weight: 500;
+          color: var(--text);
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid var(--line-2);
+          border-radius: 14px;
+          padding: 12px 22px;
+          white-space: nowrap;
+        }
+        #s08-token {
+          position: absolute;
+          left: 70px;
+          top: 36px;
+          font-size: 38px;
+          padding: 12px 22px;
+          border-radius: 14px;
+          box-shadow: 0 0 40px rgba(226, 121, 74, 0.25);
+        }
+        #s08-bar {
+          position: absolute;
+          left: 958px;
+          top: 400px;
+          width: 4px;
+          height: 300px;
+          border-radius: 4px;
+          background: linear-gradient(180deg, transparent, var(--accent) 20%, var(--accent-soft) 50%, var(--accent) 80%, transparent);
+          box-shadow: 0 0 40px rgba(226, 121, 74, 0.9);
+          transform-origin: 50% 50%;
+        }
+        #s08-barlabel {
+          position: absolute;
+          left: 760px;
+          width: 400px;
+          top: 720px;
+          text-align: center;
+          font-family: var(--mono);
+          font-size: 24px;
+          color: var(--accent-soft);
+        }
+        #s08-hit {
+          position: absolute;
+          left: 810px;
+          top: 400px;
+          width: 300px;
+          height: 300px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(245, 178, 140, 0.7), transparent 65%);
+          opacity: 0;
+        }
+        #s08-result {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 850px;
+          text-align: center;
+          font-family: var(--mono);
+          font-size: 27px;
+          color: var(--muted);
+          white-space: nowrap;
+        }
+        #s08-result b {
+          color: var(--text);
+          font-weight: 500;
+        }
+      </style>
+
+      <div id="s08" data-composition-id="s08-placeholder" data-width="1920" data-height="1080" data-duration="4.53">
+        <div class="bg-fill"></div>
+        <div class="bg-glow"></div>
+        <div class="bg-grid"></div>
+
+        <div class="display" id="s08-head">Claude gets a placeholder.</div>
+        <div class="serif-i" id="s08-head2">Never the value.</div>
+
+        <div class="eyebrow lab" id="s08-lab1" style="left: 130px">You type</div>
+        <div class="eyebrow lab" id="s08-lab2" style="right: 130px; color: var(--accent-soft)">Claude sees</div>
+
+        <div class="half" id="s08-left"><div id="s08-secret">sk_test_<span></span>51NxT8qK2eZvKb3r9fQ7…</div></div>
+        <div class="half" id="s08-right" data-layout-allow-overflow data-layout-allow-occlusion><div class="token" id="s08-token">{{secret:STRIPE_SECRET_KEY}}</div></div>
+        <div id="s08-hit"></div>
+        <div id="s08-bar"></div>
+        <div id="s08-barlabel">human-input</div>
+
+        <div id="s08-result"><b>STRIPE_SECRET_KEY</b>: saved (107 chars, hidden) → {{secret:STRIPE_SECRET_KEY}}</div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          tl.fromTo("#s08-head", { opacity: 0, y: 30, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out" }, 0);
+          tl.fromTo("#s08-bar", { scaleY: 0 }, { scaleY: 1, duration: 0.6, ease: "expo.out" }, 0.2);
+          tl.fromTo("#s08-barlabel", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0.5);
+          tl.fromTo(["#s08-lab1", "#s08-lab2"], { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.1 }, 0.3);
+          tl.fromTo("#s08-secret", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.45, ease: "expo.out" }, 0.4);
+          // the secret runs into the barrier and never comes out the other side
+          tl.to("#s08-secret", { x: 900, duration: 0.85, ease: "power2.in" }, 1.0);
+          tl.fromTo("#s08-hit", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1.2, duration: 0.18, ease: "power2.out" }, 1.55);
+          tl.to("#s08-hit", { opacity: 0, duration: 0.5 }, 1.75);
+          tl.fromTo("#s08-bar", { scaleX: 1 }, { scaleX: 3, duration: 0.12, yoyo: true, repeat: 1, immediateRender: false }, 1.55);
+          tl.fromTo("#s08-token", { x: -760, opacity: 1 }, { x: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 1.6);
+          tl.fromTo("#s08-result", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 2.3);
+          tl.fromTo("#s08-head2", { opacity: 0, y: 24, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.45, ease: "power3.out" }, 2.64);
+          window.__timelines["s08-placeholder"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

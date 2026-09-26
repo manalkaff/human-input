@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s05 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s05-wrap {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        #s05-text {
+          font-size: 150px;
+          text-align: center;
+        }
+        #s05-text .wd {
+          margin: 0 0.02em;
+        }
+        #s05-line {
+          position: absolute;
+          left: 460px;
+          top: 539px;
+          width: 1000px;
+          height: 3px;
+          border-radius: 3px;
+          background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent-soft) 50%, var(--accent) 70%, transparent);
+          box-shadow: 0 0 30px rgba(226, 121, 74, 0.8);
+          transform-origin: 50% 50%;
+          opacity: 0;
+        }
+      </style>
+
+      <div id="s05" data-composition-id="s05-better" data-width="1920" data-height="1080" data-duration="4.07">
+        <div class="bg-fill" style="background: #060606"></div>
+        <div id="s05-wrap">
+          <div class="display" id="s05-text">There's a <span class="serif-i" id="s05-better" style="color: var(--accent-soft)">better</span> way.</div>
+        </div>
+        <div id="s05-line"></div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          const el = document.getElementById("s05-text");
+          // split into words while keeping the serif span intact
+          const parts = [];
+          el.childNodes.forEach((n) => parts.push(n));
+          el.textContent = "";
+          const words = [];
+          parts.forEach((n) => {
+            if (n.nodeType === 3) {
+              n.textContent
+                .split(" ")
+                .filter(Boolean)
+                .forEach((w) => {
+                  const s = document.createElement("span");
+                  s.className = "wd";
+                  s.style.display = "inline-block";
+                  s.textContent = w;
+                  el.appendChild(s);
+                  el.appendChild(document.createTextNode(" "));
+                  words.push(s);
+                });
+            } else {
+              n.style.display = "inline-block";
+              n.classList.add("wd");
+              el.appendChild(n);
+              el.appendChild(document.createTextNode(" "));
+              words.push(n);
+            }
+          });
+          words.forEach((w, i) => {
+            tl.fromTo(w, { opacity: 0, y: 30, filter: "blur(16px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.7, ease: "power3.out" }, 0.25 + i * 0.2);
+          });
+          tl.fromTo("#s05-wrap", { scale: 1 }, { scale: 1.07, duration: 2.3, ease: "none" }, 0.2);
+          // the room goes quiet: text recedes, a line of light draws in
+          tl.to("#s05-wrap", { opacity: 0, scale: 1.14, filter: "blur(12px)", duration: 0.6, ease: "power2.in" }, 2.55);
+          tl.fromTo("#s05-line", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.8, ease: "power3.out" }, 2.9);
+          tl.to("#s05-line", { scaleX: 0.004, scaleY: 4, duration: 0.3, ease: "expo.in" }, 3.7);
+          window.__timelines["s05-better"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

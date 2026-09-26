@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s04 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s04 .win {
+          position: absolute;
+          width: 660px;
+          border-radius: 18px;
+          background: linear-gradient(180deg, #16181d 0%, #101216 100%);
+          border: 1px solid var(--line-2);
+          box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+          overflow: hidden;
+          font-family: var(--mono);
+          color: var(--text);
+        }
+        #s04 .wbar {
+          height: 44px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 0 16px;
+          border-bottom: 1px solid var(--line);
+          font-family: var(--sans);
+          font-size: 16px;
+          color: var(--muted);
+        }
+        #s04 .wbar b {
+          width: 11px;
+          height: 11px;
+          border-radius: 50%;
+          background: #3a3b40;
+        }
+        #s04 .wbar span {
+          flex: 1;
+          text-align: center;
+          margin-right: 50px;
+        }
+        #s04 .url {
+          flex: 1;
+          margin: 0 30px 0 12px;
+          height: 26px;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.06);
+          display: flex;
+          align-items: center;
+          padding-left: 12px;
+          font-family: var(--mono);
+          font-size: 15px;
+          color: #b9bcc6;
+        }
+        #s04 .wbody {
+          padding: 22px 26px;
+          font-size: 23px;
+          line-height: 1.6;
+          white-space: nowrap;
+        }
+        #s04 .muted {
+          color: var(--muted);
+        }
+        #s04 .ln {
+          color: var(--dim);
+          margin-right: 18px;
+        }
+        #s04 .btn {
+          display: inline-block;
+          font-family: var(--sans);
+          font-size: 17px;
+          padding: 4px 12px;
+          border-radius: 7px;
+          border: 1px solid var(--line-2);
+          color: #c9ccd6;
+          margin-left: 12px;
+        }
+        #s04-dim {
+          position: absolute;
+          inset: 0;
+          background: rgba(6, 7, 9, 0.78);
+          opacity: 0;
+        }
+        #s04 .stamp {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 150px;
+          opacity: 0;
+        }
+        #s04-eyebrow {
+          position: absolute;
+          left: 90px;
+          top: 70px;
+        }
+      </style>
+
+      <div id="s04" data-composition-id="s04-detour" data-width="1920" data-height="1080" data-duration="3.75">
+        <div class="bg-fill" style="background: var(--ink-cold)"></div>
+        <div class="bg-glow cold"></div>
+        <div class="bg-grid"></div>
+
+        <div class="win" data-layout-allow-overlap id="s04-w1" style="left: 120px; top: 170px">
+          <div class="wbar"><b></b><b></b><b></b><span>zsh — ~/shop-app</span></div>
+          <div class="wbody"><span class="muted">$</span> vim .env.local<br />STRIPE_SECRET_KEY=<span class="cursor" style="height: 26px; width: 12px"></span></div>
+        </div>
+        <div class="win" data-layout-allow-overlap id="s04-w2" style="left: 700px; top: 110px; width: 760px">
+          <div class="wbar"><b></b><b></b><b></b><div class="url">dashboard.stripe.com/test/apikeys</div></div>
+          <div class="wbody" style="font-family: var(--sans); font-size: 24px">
+            <div style="font-weight: 600; font-size: 30px; margin-bottom: 8px">API keys</div>
+            <div><span class="muted">Publishable key</span>&nbsp;&nbsp;<span style="font-family: var(--mono)">pk_test_51Nx…</span></div>
+            <div><span class="muted">Secret key</span>&nbsp;&nbsp;<span style="font-family: var(--mono)">••••••••••••</span><span class="btn">Reveal test key</span></div>
+          </div>
+        </div>
+        <div class="win" data-layout-allow-overlap id="s04-w3" style="left: 1230px; top: 470px; width: 600px">
+          <div class="wbar"><b></b><b></b><b></b><span>zsh — setup</span></div>
+          <div class="wbody"><span class="muted">$</span> npx stripe-setup<br /><span style="color: var(--code-blue)">?</span> Paste your secret key <span class="muted">›</span></div>
+        </div>
+        <div class="win" data-layout-allow-overlap id="s04-w4" style="left: 260px; top: 560px; width: 700px">
+          <div class="wbar"><b></b><b></b><b></b><span>.env.local — shop-app</span></div>
+          <div class="wbody"><span class="ln">1</span>STRIPE_PUBLISHABLE_KEY=pk_test_…<br /><span class="ln">2</span>STRIPE_SECRET_KEY=sk_test_…<br /><span class="ln">3</span></div>
+        </div>
+        <div class="win" data-layout-allow-overlap id="s04-w5" style="left: 760px; top: 700px; width: 820px">
+          <div class="wbar"><b></b><b></b><b></b><span>claude — ~/shop-app</span></div>
+          <div class="wbody"><span class="muted">&gt;</span> done, it's in .env.local now<br /><span style="color: var(--text)">●</span> Thanks! Which variable name did you use?</div>
+        </div>
+
+        <div id="s04-dim"></div>
+        <div class="eyebrow" id="s04-eyebrow">The “safe” way</div>
+        <div class="stamp display" data-layout-allow-overlap id="s04-t1">Leave the session.</div>
+        <div class="stamp display" data-layout-allow-overlap id="s04-t2">Edit files by hand.</div>
+        <div class="stamp display" data-layout-allow-overlap id="s04-t3">Come back.</div>
+        <div class="stamp display" data-layout-allow-overlap id="s04-t4"><span data-layout-allow-overlap>Explain <span class="serif-i" data-layout-allow-overlap style="color: var(--danger-soft)">everything.</span></span></div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          tl.fromTo("#s04-eyebrow", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 0.05);
+          const wins = [
+            ["#s04-w1", -3],
+            ["#s04-w2", 2],
+            ["#s04-w3", 3],
+            ["#s04-w4", -2],
+            ["#s04-w5", 1.5],
+          ];
+          wins.forEach(([id, r], i) => {
+            tl.fromTo(id, { opacity: 0, scale: 0.8, y: 60, rotation: r * 2 }, { opacity: 1, scale: 1, y: 0, rotation: r, duration: 0.34, ease: "back.out(1.5)" }, 0.08 + i * 0.3);
+          });
+          // everything drifts, getting crowded
+          tl.fromTo("#s04 .win", { x: 0 }, { x: (i) => [-30, 20, 40, -25, 10][i], duration: 3.6, ease: "none", immediateRender: false }, 0.1);
+          tl.to("#s04-dim", { opacity: 1, duration: 0.25 }, 1.62);
+          tl.to("#s04 .win", { filter: "blur(6px)", duration: 0.3 }, 1.62);
+          tl.to("#s04-eyebrow", { opacity: 0, duration: 0.2 }, 1.62);
+          const stamps = ["#s04-t1", "#s04-t2", "#s04-t3", "#s04-t4"];
+          stamps.forEach((id, i) => {
+            const t = 1.7 + i * 0.47;
+            tl.fromTo(id, { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.14, ease: "power3.out" }, t);
+            if (i < stamps.length - 1) tl.set(id, { opacity: 0 }, t + 0.47);
+          });
+          tl.to("#s04-t4", { opacity: 0, scale: 0.94, filter: "blur(8px)", duration: 0.25, ease: "power2.in" }, 3.5);
+          window.__timelines["s04-detour"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

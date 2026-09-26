@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s12 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s12-headwrap {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 320px;
+          display: flex;
+          justify-content: center;
+        }
+        #s12-head {
+          font-size: 150px;
+          text-align: center;
+          transform-origin: 50% 0%;
+        }
+        #s12-head .serif-i {
+          color: var(--accent-soft);
+          font-size: 172px;
+        }
+        #s12-head .line {
+          display: block;
+          white-space: nowrap;
+        }
+        #s12-term {
+          position: absolute;
+          left: 0;
+          right: 0;
+          margin: 0 auto;
+          width: fit-content;
+          top: 390px;
+          border-radius: 20px;
+          background: linear-gradient(180deg, #181715 0%, #121110 100%);
+          border: 1px solid var(--line-2);
+          box-shadow: 0 50px 120px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.6);
+          padding: 34px 44px;
+          font-family: var(--mono);
+          font-size: 36px;
+          line-height: 1.75;
+          white-space: nowrap;
+        }
+        #s12-term .c {
+          color: var(--muted);
+          margin-right: 18px;
+        }
+        #s12-term .slash {
+          color: var(--accent-soft);
+        }
+        #s12-lock {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 730px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 26px;
+        }
+        #s12-mark {
+          width: 96px;
+          height: 96px;
+          filter: drop-shadow(0 12px 40px rgba(226, 121, 74, 0.5));
+        }
+        #s12-word {
+          font-size: 92px;
+          font-weight: 680;
+          letter-spacing: -0.055em;
+          line-height: 1;
+          padding-bottom: 0.1em;
+        }
+        #s12-url {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 880px;
+          text-align: center;
+          font-family: var(--mono);
+          font-size: 32px;
+          color: var(--muted);
+        }
+        #s12-url b {
+          color: var(--text);
+          font-weight: 500;
+        }
+      </style>
+
+      <div id="s12" data-composition-id="s12-cta" data-width="1920" data-height="1080" data-duration="8.55">
+        <div class="bg-fill"></div>
+        <div class="bg-glow"></div>
+        <div class="bg-grid"></div>
+
+        <div id="s12-headwrap">
+          <div class="display" id="s12-head">
+            <span class="line"><span class="wd" id="s12-w1">Stop</span> <span class="wd" id="s12-w2">pasting</span> <span class="wd serif-i" id="s12-w3">secrets</span></span>
+            <span class="line"><span class="wd" id="s12-w4">into</span> <span class="wd" id="s12-w5">chat.</span></span>
+          </div>
+        </div>
+
+        <div id="s12-term">
+          <div><span class="c">&gt;</span><span class="slash" id="s12-a1">/plugin marketplace add manalkaff/human-input</span></div>
+          <div><span class="c">&gt;</span><span class="slash" id="s12-a2">/plugin install human-input@human-input</span></div>
+        </div>
+
+        <div id="s12-lock">
+          <svg id="s12-mark" viewBox="0 0 160 160">
+            <defs>
+              <linearGradient id="s12-g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#f09a6c" />
+                <stop offset="0.55" stop-color="#e2794a" />
+                <stop offset="1" stop-color="#b9552c" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="160" height="160" rx="40" fill="url(#s12-g)" />
+            <rect x="1" y="1" width="158" height="158" rx="39" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" />
+            <path d="M52 48 q-12 0 -12 12 v10 q0 10 -9 10 q9 0 9 10 v10 q0 12 12 12" fill="none" stroke="#1a0f0a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M108 48 q12 0 12 12 v10 q0 10 9 10 q-9 0 -9 10 v10 q0 12 -12 12" fill="none" stroke="#1a0f0a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="80" cy="70" r="13" fill="#1a0f0a" />
+            <path d="M73 76 L87 76 L91 106 L69 106 Z" fill="#1a0f0a" />
+          </svg>
+          <div class="display" id="s12-word">human-input</div>
+        </div>
+        <div id="s12-url">github.com/<b>manalkaff/human-input</b></div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          const B = 0.3775;
+          const words = ["#s12-w1", "#s12-w2", "#s12-w3", "#s12-w4", "#s12-w5"];
+          words.forEach((id, i) => {
+            tl.fromTo(id, { opacity: 0, y: 60, filter: "blur(14px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, B * i);
+          });
+          // headline lifts out of the way for the install commands
+          tl.fromTo("#s12-head", { y: 0, scale: 1 }, { y: -205, scale: 0.56, duration: 0.7, ease: "expo.inOut" }, 2.1);
+          tl.fromTo("#s12-term", { opacity: 0, y: 60, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "expo.out" }, 2.45);
+          HF.typeOn(tl, document.getElementById("s12-a1"), 2.8, 38);
+          HF.typeOn(tl, document.getElementById("s12-a2"), 4.2, 38);
+          tl.fromTo("#s12-mark", { opacity: 0, scale: 0.4, rotation: -20 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.55, ease: "back.out(1.8)" }, 5.55);
+          tl.fromTo("#s12-word", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, ease: "expo.out" }, 5.7);
+          tl.fromTo("#s12-url", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 6.0);
+          window.__timelines["s12-cta"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

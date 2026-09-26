@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s01 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s01 .cam {
+          position: absolute;
+          inset: 0;
+        }
+        #s01-term {
+          left: 250px;
+          top: 170px;
+          width: 1420px;
+          height: 660px;
+        }
+        #s01-caption {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 64px;
+          text-align: center;
+          font-family: var(--mono);
+          font-size: 22px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: var(--muted);
+        }
+      </style>
+
+      <div id="s01" data-composition-id="s01-ask" data-width="1920" data-height="1080" data-duration="4.7">
+        <div class="bg-fill" style="background: var(--ink-cold)"></div>
+        <div class="bg-glow cold"></div>
+        <div class="bg-grid"></div>
+
+        <div class="cam" id="s01-cam">
+          <div class="term cold" id="s01-term">
+            <div class="term-bar">
+              <div class="term-dot"></div>
+              <div class="term-dot"></div>
+              <div class="term-dot"></div>
+              <div class="term-title">claude — ~/shop-app</div>
+            </div>
+            <div class="term-body">
+              <div class="t-prompt"><span class="t-caret">&gt;</span><span id="s01-typed">add Stripe checkout to my app</span></div>
+              <div class="t-line" id="s01-l1"><span class="t-bullet ok"></span><span>Created <span class="k-dim">app/api/checkout/route.ts</span></span></div>
+              <div class="t-line" id="s01-l2"><span class="t-bullet ok"></span><span>Wired the checkout button in <span class="k-dim">components/Cart.tsx</span></span></div>
+              <div class="t-line" id="s01-l3"><span class="t-bullet"></span><span id="s01-ask">I need your <b style="font-weight: 600">Stripe secret key</b> to finish.</span></div>
+              <div class="t-sub" id="s01-l4"><span class="t-elbow"></span><span>Paste it here and I'll add it to your .env.</span></div>
+              <div class="t-prompt" id="s01-p2" style="margin-top: 30px"><span class="t-caret">&gt;</span><span class="cursor" id="s01-cur"></span></div>
+            </div>
+          </div>
+        </div>
+        <div id="s01-caption">Every project. Every API key.</div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          // camera: slow pull out from a soft, close framing
+          tl.fromTo("#s01-cam", { scale: 1.12, y: 40, opacity: 0, filter: "blur(14px)" }, { scale: 1, y: 0, opacity: 1, filter: "blur(0px)", duration: 1.4, ease: "expo.out" }, 0);
+          // prompt typing
+          HF.typeOn(tl, document.getElementById("s01-typed"), 0.45, 26);
+          // assistant lines
+          ["#s01-l1", "#s01-l2"].forEach((id, i) => {
+            tl.fromTo(id, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 1.85 + i * 0.32);
+          });
+          tl.fromTo("#s01-l3", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 2.65);
+          tl.fromTo("#s01-l4", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 2.95);
+          tl.fromTo("#s01-p2", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3.35);
+          // blinking cursor (finite)
+          tl.fromTo("#s01-cur", { opacity: 1 }, { opacity: 0, duration: 0.01, repeat: 5, yoyo: true, repeatDelay: 0.26 }, 3.5);
+          // push in on the ask
+          tl.to("#s01-cam", { scale: 1.16, x: 150, y: -40, duration: 1.4, ease: "power2.inOut" }, 3.1);
+          tl.fromTo("#s01-caption", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.0);
+          tl.to("#s01-caption", { opacity: 0, duration: 0.3 }, 4.2);
+          window.__timelines["s01-ask"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

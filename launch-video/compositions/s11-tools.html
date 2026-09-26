@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        #s11 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        #s11-head {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 96px;
+          text-align: center;
+          font-size: 92px;
+          white-space: nowrap;
+        }
+        #s11-head .serif-i {
+          color: var(--accent-soft);
+          font-size: 106px;
+        }
+        #s11-grid {
+          position: absolute;
+          left: 165px;
+          top: 300px;
+          width: 1590px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 30px;
+        }
+        #s11 .tool {
+          height: 200px;
+          border-radius: 22px;
+          background: linear-gradient(180deg, #191816 0%, #121110 100%);
+          border: 1px solid var(--line-2);
+          padding: 34px 38px;
+          box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
+        }
+        #s11 .tool .nm {
+          font-family: var(--mono);
+          font-size: 36px;
+          font-weight: 600;
+          color: var(--accent-soft);
+        }
+        #s11 .tool .ds {
+          margin-top: 14px;
+          font-family: var(--sans);
+          font-size: 31px;
+          font-weight: 450;
+          color: var(--text);
+          letter-spacing: -0.01em;
+        }
+        #s11-chips {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 800px;
+          display: flex;
+          justify-content: center;
+          gap: 22px;
+        }
+        #s11 .chip {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          font-family: var(--sans);
+          font-size: 28px;
+          font-weight: 500;
+          color: var(--text);
+          padding: 16px 26px;
+          border-radius: 999px;
+          border: 1px solid var(--line-2);
+          background: rgba(255, 255, 255, 0.03);
+          white-space: nowrap;
+        }
+        #s11 .chip b {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: var(--ok);
+          box-shadow: 0 0 14px rgba(95, 214, 156, 0.8);
+        }
+      </style>
+
+      <div id="s11" data-composition-id="s11-tools" data-width="1920" data-height="1080" data-duration="5.27">
+        <div class="bg-fill"></div>
+        <div class="bg-glow"></div>
+        <div class="bg-grid"></div>
+
+        <div class="display" id="s11-head">Four tools. <span class="serif-i">Zero dependencies.</span></div>
+
+        <div id="s11-grid">
+          <div class="tool" id="s11-t1"><div class="nm">request_input</div><div class="ds">A form with the page link, the steps and the fields.</div></div>
+          <div class="tool" id="s11-t2"><div class="nm">confirm_step</div><div class="ds">“Do this on that page. Tell me when it’s done.”</div></div>
+          <div class="tool" id="s11-t3"><div class="nm">list_secrets</div><div class="ds">Names, lengths, destinations. Never the values.</div></div>
+          <div class="tool" id="s11-t4"><div class="nm">forget_secrets</div><div class="ds">Wipe a value after you rotate the key.</div></div>
+        </div>
+
+        <div id="s11-chips">
+          <div class="chip" id="s11-k1"><b></b>Stored outside the repo, mode 600</div>
+          <div class="chip" id="s11-k2"><b></b>No npm dependencies</div>
+          <div class="chip" id="s11-k3"><b></b>No leaving the session</div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          const B = 0.3775;
+          tl.fromTo("#s11-head", { opacity: 0, y: 30, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out" }, 0);
+          ["#s11-t1", "#s11-t2", "#s11-t3", "#s11-t4"].forEach((id, i) => {
+            tl.fromTo(id, { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "expo.out" }, B * (1 + i));
+          });
+          ["#s11-k1", "#s11-k2", "#s11-k3"].forEach((id, i) => {
+            tl.fromTo(id, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.6)" }, B * 6 + i * 0.15);
+          });
+          tl.fromTo("#s11-grid", { scale: 1 }, { scale: 1.025, duration: 4.5, ease: "none" }, 0.4);
+          tl.to(["#s11-head", "#s11-grid", "#s11-chips"], { opacity: 0, scale: 0.96, filter: "blur(10px)", duration: 0.3, ease: "power2.in" }, 4.98);
+          window.__timelines["s11-tools"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>
